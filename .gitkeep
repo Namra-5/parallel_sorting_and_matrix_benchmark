@@ -6,7 +6,7 @@ merge_sort/bin/thread2
 merge_sort/bin/mpi
 merge_sort/data/*txt
 
-#matrix_multiplication
+# matrix_multiplication
 matrix_multiplication/bin/seq
 matrix_multiplication/bin/omp
 matrix_multiplication/bin/thread
