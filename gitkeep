@@ -1,0 +1,15 @@
+# merge_sort
+merge_sort/bin/seq
+merge_sort/bin/omp
+merge_sort/bin/thread
+merge_sort/bin/thread2
+merge_sort/bin/mpi
+merge_sort/data/*txt
+
+#matrix_multiplication
+matrix_multiplication/bin/seq
+matrix_multiplication/bin/omp
+matrix_multiplication/bin/thread
+matrix_multiplication/bin/thread2
+matrix_multiplication/bin/mpi
+matrix_multiplication/data/*txt
