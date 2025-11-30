@@ -21,7 +21,6 @@ array_struct* get_array_struct(char filename[]) {
         exit(EXIT_FAILURE);
     }
 }
-
     fclose(f);
     return arr;
 }
