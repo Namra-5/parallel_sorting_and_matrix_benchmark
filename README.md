@@ -161,4 +161,3 @@ The following observations summarize the runtime behavior across different input
 
 > Selecting the appropriate execution model depends on **input size, workload distribution, and available hardware resources**.
 
----
