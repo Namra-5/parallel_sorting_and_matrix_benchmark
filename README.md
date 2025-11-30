@@ -91,7 +91,6 @@ The task is to multiply two matrices. To do this correctly, the number of column
     | | |-- mpi.c
     | | |-- omp.c
     | | |-- sequential.c
-    | | |-- thread.c
     | | `-- thread2.c 
     | |-- Makefile 
     | |-- random_float_matrix.py 
