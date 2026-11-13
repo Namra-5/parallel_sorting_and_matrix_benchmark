@@ -1,224 +1,240 @@
 # Parallel Computing Benchmark: Merge Sort & Matrix Multiplication
 
 ![C](https://img.shields.io/badge/C-gnu99-blue.svg)
-![OpenMP](https://img.shields.io/badge/OpenMP-parallel-orange.svg)
+![OpenMP](https://img.shields.io/badge/OpenMP-tasks-orange.svg)
 ![Pthreads](https://img.shields.io/badge/POSIX-Pthreads-green.svg)
-![MPI](https://img.shields.io/badge/MPI-OpenMPI-red.svg)
+![MPI](https://img.shields.io/badge/MPI-OpenMPI%20%7C%20MPICH-red.svg)
 ![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)
+![CI](https://github.com/Namra-5/parallel_sorting_and_matrix_benchmark/actions/workflows/benchmark-smoke.yml/badge.svg)
 
-A comparative benchmark of **four execution models** — Sequential, OpenMP, POSIX Threads (Pthreads), and MPI — applied to two classic workloads: **Merge Sort** (memory-bound, O(n log n)) and **Matrix Multiplication** (compute-bound, O(n³)).
+A comparative study of **four execution models** — Sequential, OpenMP, POSIX Threads (Pthreads) and MPI — on two classic
+workloads: **Merge Sort** (memory-bound, O(n log n)) and **Matrix Multiplication** (compute-bound, O(n³)).
 
-The project measures how each parallel programming paradigm behaves as input size scales, and empirically shows *when* parallelism helps and when its overhead outweighs the benefit.
-
-**[Full written report (PDF) →](./report.pdf)** — includes methodology, per-model analysis, and complexity derivations.
+The repository started as a course assignment ([report.pdf](./report.pdf), Operating Systems, NUST). It has since been
+audited and rebuilt around one principle: **a number is only a result if the program that produced it finished
+successfully and printed the same answer as the sequential reference.** The audit found, and this repository now fixes
+and tests for, several defects that had silently invalidated parts of the original measurements (see
+[Audit findings](#audit-findings-and-what-changed)).
 
 ---
 
 ## Table of Contents
 
-- [Key Results](#key-results)
-- [Execution Models](#execution-models)
-- [Project Structure](#project-structure)
+- [What is validated](#what-is-validated)
+- [Execution models](#execution-models)
+- [Project structure](#project-structure)
 - [Prerequisites](#prerequisites)
-- [Build & Run](#build--run)
-- [Benchmark Results](#benchmark-results)
-- [Notes & Caveats](#notes--caveats)
-- [Tech Stack](#tech-stack)
-- [Author](#author)
-- [License](#license)
+- [Quick start](#quick-start)
+- [Reproducing the scaling benchmark](#reproducing-the-scaling-benchmark)
+- [Measurement methodology](#measurement-methodology)
+- [Audit findings and what changed](#audit-findings-and-what-changed)
+- [Legacy Results (2025, single run, unvalidated)](#legacy-results-2025-single-run-unvalidated)
+- [Limitations](#limitations)
+- [Tech stack](#tech-stack)
+- [Author](#author) · [Acknowledgments](#acknowledgments) · [License](#license)
 
 ---
 
-## Key Results
+## What is validated
 
-| Workload | Best model (small input) | Best model (large input) | Why |
+| Guarantee | How it is enforced |
+|---|---|
+| Every parallel run is checked | `benchmark/run_benchmark.py` records the exit code and a SHA-256 of stdout for every run and compares it with the sequential output for the same input. Only `ok` runs enter any statistic. |
+| Failed or hung launches cannot look fast | Non-zero exits, wrong output and timeouts get their own status and are excluded; the timeout kills the whole process tree. |
+| Correct for awkward sizes | Regression tests build every binary and compare it with an independent Python oracle (empty input, fewer elements than threads, sizes not divisible by the rank count, non-square matrices, malformed files). |
+| Scaling claims are honest | Configurations with more workers than physical cores are flagged `oversubscribed` and excluded from `scaling_valid`. |
+| Reproducible | Seeded generators, input SHA-256 manifest, recorded hardware/compiler/MPI/git state, identical floating-point policy (`-ffp-contract=off`). |
+| Memory safe | The test suite was additionally run under AddressSanitizer + UndefinedBehaviorSanitizer (`make EXTRA_CFLAGS="-fsanitize=address,undefined"`). |
+
+CI (`.github/workflows/benchmark-smoke.yml`) runs the unit tests, the regression tests and a smoke benchmark on every push.
+
+---
+
+## Execution models
+
+| Model | Type | Memory | Implementation notes |
 |---|---|---|---|
-| Matrix Multiplication | Sequential | MPI (4 processes) | Compute grows as O(n³); at large `n`, arithmetic dominates communication cost |
-| Merge Sort | Sequential | Pthreads / MPI | Sort grows as O(n log n); overhead from thread/process setup dominates until arrays are large |
+| Sequential | Baseline | Single thread | Reference for correctness *and* for every speedup |
+| OpenMP | Shared memory | Threads | Matrix: `#pragma omp parallel for` over rows. Sort: **task-based** merge sort with a sequential cut-off |
+| Pthreads | Shared memory | Threads | Explicit balanced partitioning; thread count from `BENCH_THREADS` (default: online CPUs) |
+| MPI | Distributed memory | Processes | Matrix: broadcast of A and B, row blocks, `MPI_Gatherv`. Sort: `MPI_Scatterv` → local sort → `MPI_Gatherv` → merge. Works for any rank count |
 
-**Takeaway:** parallel execution is only worthwhile once the useful work per worker outweighs the cost of creating and coordinating that worker. All four models were benchmarked across 5–6 input sizes per workload to make this crossover point visible (see [Benchmark Results](#benchmark-results)).
-
----
-
-## Execution Models
-
-| Model | Type | Memory | Key Points |
-|---|---|---|---|
-| Sequential | Baseline | Single-threaded | Reference implementation for correctness; minimal overhead |
-| OpenMP | Shared-memory | Threads | Pragma-based (`#pragma omp`); compiler-managed scheduling |
-| Pthreads | Shared-memory | Threads | Manual thread creation and explicit workload partitioning |
-| MPI | Distributed-memory | Processes | Scales across nodes; communication cost dominates at small sizes |
-
-> Parallelism improves runtime only when the **amount of useful work offsets concurrency management costs**.
+The four sorting binaries share **one** merge kernel (`merge_sort/src/msort.c`), so the comparison measures the
+parallelisation strategy rather than four slightly different sort routines.
 
 ---
 
-## Project Structure
+## Project structure
 
 ```
 .
-├── merge_sort
-│   ├── bin/            # compiled binaries (seq, omp, thread2, mpi)
-│   ├── data/            # generated test arrays (5 .. 500000 elements)
-│   ├── src/
-│   │   ├── array.c / array.h   # shared I/O utilities
-│   │   ├── sequential.c
-│   │   ├── omp.c
-│   │   ├── thread2.c
-│   │   └── mpi.c
-│   ├── Makefile
-│   ├── random_array.py
-│   └── Test-Script.sh
-├── matrix_multiplication
-│   ├── bin/
-│   ├── data/            # generated test matrices (5x4 .. 5000x5000)
-│   ├── src/
-│   │   ├── matrix.c / matrix.h
-│   │   ├── sequential.c
-│   │   ├── omp.c
-│   │   ├── thread2.c
-│   │   └── mpi.c
-│   ├── Makefile
-│   ├── random_float_matrix.py
-│   └── Test-Script.sh
-├── report.pdf
-├── README.md
-└── LICENSE
+├── common/bench_common.h        # kernel timer + thread-count helper shared by all binaries
+├── merge_sort/
+│   ├── src/ array.c/.h  msort.c/.h  sequential.c  omp.c  thread2.c  mpi.c
+│   ├── Makefile  random_array.py  Test-Script.sh  bin/  data/
+├── matrix_multiplication/
+│   ├── src/ matrix.c/.h  sequential.c  omp.c  thread2.c  mpi.c
+│   ├── Makefile  random_float_matrix.py  Test-Script.sh  bin/  data/
+├── benchmark/
+│   ├── run_benchmark.py         # validated driver -> results/raw_runs.csv
+│   ├── standardize.py           # raw runs -> results/benchmark_results.csv (speedup, efficiency)
+│   ├── plot_results.py          # figures from the CSVs
+│   ├── legacy_extract.py        # legacy README tables -> legacy_single_run_results.csv
+│   ├── tests/                   # unit + regression tests
+│   └── README_BENCHMARK.md      # dataset schema and interpretation guide
+├── .github/workflows/benchmark-smoke.yml
+├── docs/AUDIT_REPORT.md          # full audit: findings, evidence, residual risks
+├── assets/  report.pdf  ERRATA.md  CHANGELOG.md  CITATION.cff  NOTICE  LICENSE
 ```
 
 ---
 
 ## Prerequisites
 
-- Linux (tested on Ubuntu)
-- `gcc` with OpenMP support (`-fopenmp`)
-- `mpicc` / `mpirun` (OpenMPI or MPICH)
-- `python3`
-- POSIX `time` utility (used by the test scripts)
-
-Install on Debian/Ubuntu:
+- Linux, macOS or Windows via **WSL**
+- `gcc` with OpenMP (libgomp ships with gcc; `libomp-dev` is only needed for clang), `make`
+- `mpicc` / `mpirun` (OpenMPI or MPICH), `python3` ≥ 3.9 (tested with 3.12 and 3.13) with `pandas` (`matplotlib` for plots, `pytest` for tests)
 
 ```bash
-sudo apt update
-sudo apt install build-essential libopenmpi-dev openmpi-bin python3
+sudo apt update && sudo apt install build-essential libopenmpi-dev openmpi-bin python3 python3-pip
+python3 -m pip install -r benchmark/requirements.txt
+```
+
+macOS: Apple's `gcc` is clang without OpenMP — `brew install gcc open-mpi`, then `make CC=gcc-14` in each workload folder.
+
+---
+
+## Quick start
+
+```bash
+python3 -m pytest benchmark/tests -q                         # unit + regression tests
+python3 benchmark/run_benchmark.py --smoke --out-dir /tmp/smoke   # ~10 s end-to-end check
 ```
 
 ---
 
-## Build & Run
-
-### Merge Sort
+## Reproducing the scaling benchmark
 
 ```bash
-cd merge_sort
-chmod +x Test-Script.sh
-./Test-Script.sh
+python3 benchmark/run_benchmark.py --workload both \
+    --matrix-sizes 500 1000 2000 --sort-sizes 50000 500000 5000000 \
+    --reps 5 --notes "bare metal, Ubuntu 24.04, performance governor, no other load"
+python3 benchmark/standardize.py        # -> benchmark/results/benchmark_results.csv
+python3 benchmark/plot_results.py       # -> benchmark/results/*.png
 ```
+
+`--workers` defaults to 1, 2, 4, … up to the physical core count. Outputs (`raw_runs.csv`, `benchmark_results.csv`,
+`hardware_environment.json`, `inputs_manifest.json`) are described in [benchmark/README_BENCHMARK.md](benchmark/README_BENCHMARK.md).
+Select only rows with `scaling_valid == True` when making scaling claims.
+
+---
+
+## Measurement methodology
+
+- **Two times per run.** `wall_s` is the whole process (includes `mpirun` start-up, parsing the text input and printing).
+  `kernel_s` is measured *inside* the program (`BENCH_TIMING=1`) and covers computation only (for MPI also
+  scatter/gather/merge). Input parsing is serial, so `wall_s` understates achievable speedup (Amdahl); `kernel_s` is the
+  scaling signal.
+- **Speedup / efficiency.** `S_N = T_seq / T_N` against the true sequential binary on the same workload and size;
+  `E_N = S_N / N`. `speedup_vs_1worker` uses the same model with one worker. Medians over valid repetitions.
+- **Run order.** Repetitions are the outer loop so slow drift (thermal, background load) affects all models alike.
+- **Compiler.** `-O2 -Wall -std=gnu99 -g -fopenmp -ffp-contract=off` for every model; no model-specific tuning.
+- **Known simplification.** The matrix kernel keeps the textbook `i-j-k` loop order (inherited from the upstream
+  scaffold), which is cache-unfriendly; absolute times are therefore much slower than a tuned BLAS. All models share it,
+  so relative comparisons remain valid, but the figures are not a statement about peak hardware performance.
+
+---
+
+## Audit findings and what changed
+
+| # | Finding (evidence) | Fix |
+|---|---|---|
+| 1 | **MPI timings in the original tables were not valid.** On a machine with fewer slots than processes, `mpirun -np 4` exits with "not enough slots" after ≈0.06 s (reproduced). `Test-Script.sh` discarded that error and timed it. The original MPI numbers (0.061–0.247 s, up to 9 202× "speedup" on 4 processes) match that signature. | Harness checks exit status + output hash; scripts print `FAILED`; OpenMPI gets `--oversubscribe` when needed and the row is flagged. |
+| 2 | `merge_sort/src/mpi.c` returned a **wrongly sorted array with exit code 0** whenever n was not divisible by the rank count (reproduced for e.g. n=11, np=2,3,4,7). | `MPI_Scatterv`/`Gatherv`; regression tests. |
+| 3 | The "OpenMP" merge sort **ran on one thread**: nested `parallel sections` are inactive under the default `max-active-levels=1` (team size 1, verified by instrumenting). | Task-based sort; test asserts several threads execute leaf sorts. |
+| 4 | `merge_sort/src/thread2.c` **hung forever** when elements < cores (zero-size chunks; reproduced with 8 threads for n = 1, 2, 3, 5, 7). | Thread count capped at n, balanced split. |
+| 5 | MPI matrix code aborted unless rows % ranks == 0. | Row distribution for any rank count. |
+| 6 | Parsers silently accepted bad input: a non-integer token truncated the array; a matrix without final newline lost its last row; a truncated matrix became zeros. | Explicit errors on stderr, non-zero exit. |
+| 7 | The driver's timeout never fired for a silent hang (blocking `read`). | Reader threads + process-group kill; regression test. |
+| 8 | Root-level `.gitkeep` contained `.gitignore` rules and so ignored nothing. | Replaced by a real `.gitignore` (data files, binaries, results). |
+| 9 | Portability: `<malloc.h>` does not exist on macOS; OpenMPI-only flags were passed unconditionally. | Removed; MPI launch flags are found by probing the installed `mpirun` (the spelling differs between Open MPI 4, Open MPI 5/PRRTE and MPICH). |
+| 10 | Four duplicated `merge()` copies. | One shared kernel. |
+
+Statements in the original [report.pdf](./report.pdf) that these findings affect are listed in [ERRATA.md](./ERRATA.md).
+The PDF itself is kept unchanged as the historical submission.
+
+---
+
+## Legacy Results (2025, single run, unvalidated)
+
+> **Read before using these numbers.** They are the original single-run `time` measurements. The **MPI columns (†) are
+> unverified**: launch status and output were never checked, and several values are physically impossible for 4
+> processes. They are kept only for provenance, are flagged in
+> [`benchmark/legacy_single_run_results.csv`](benchmark/legacy_single_run_results.csv), and must not be cited as MPI
+> performance. OpenMP/Pthreads/Sequential cells come from a machine whose core count was not recorded, and the OpenMP
+> merge-sort cells were very likely produced by the effectively serial implementation described in finding 3 (the
+> original environment variables were not recorded). Use the validated harness above
+> for any claim.
 
 ### Matrix Multiplication
 
-```bash
-cd matrix_multiplication
-chmod +x Test-Script.sh
-./Test-Script.sh
-```
+![Legacy matrix multiplication runtime (MPI bars hatched = unverified)](assets/matrix_multiplication_runtime.png)
 
-Each script will:
-1. Generate any missing test data with the Python generator.
-2. Compile all four binaries via `make` (`bin/seq`, `bin/omp`, `bin/thread2`, `bin/mpi`).
-3. Run every binary against every input size and print wall-clock (`real`) time.
-
-Build manually instead of via the script:
-
-```bash
-gcc -O2 -Wall -std=gnu99 -fopenmp -o bin/seq   src/array.c src/sequential.c
-gcc -O2 -Wall -std=gnu99 -fopenmp -o bin/omp   src/array.c src/omp.c
-gcc -O2 -Wall -std=gnu99 -fopenmp -pthread -o bin/thread2 src/array.c src/thread2.c
-mpicc -O2 -Wall -std=gnu99 -fopenmp -o bin/mpi src/array.c src/mpi.c
-```
-
----
-
-## Benchmark Results
-
-All times are wall-clock (`real`), measured with POSIX `time`, single run per configuration. MPI was run with `mpirun -np 4`.
-
-### Matrix Multiplication
-
-![Matrix multiplication runtime vs input size, log scale, across Sequential, OpenMP, Pthreads, and MPI](assets/matrix_multiplication_runtime.png)
-
-| Size | Sequential | OpenMP | Pthreads | MPI (4p) |
+| Size | Sequential | OpenMP | Pthreads | MPI (4p) † |
 |---|---|---|---|---|
-| 5×4 | 0.006s | 0.014s | 0.007s | 0.081s |
-| 10×10 | 0.004s | 0.007s | 0.004s | 0.079s |
-| 500×500 | 1.011s | 0.785s | 0.758s | 0.071s |
-| 2000×2000 | 1m 46.573s | 54.399s | 57.713s | 0.094s¹ |
-| 5000×5000 | 37m 52.786s | 22m 48.886s | 19m 49.032s | 0.247s¹ |
-
-¹ These MPI timings are faster than the arithmetic workload would predict at scale, measured from a single run and not re-verified against sequential output for correctness. See [Notes & Caveats](#notes--caveats).
+| 5×4 | 0.006s | 0.014s | 0.007s | 0.081s† |
+| 10×10 | 0.004s | 0.007s | 0.004s | 0.079s† |
+| 500×500 | 1.011s | 0.785s | 0.758s | 0.071s† |
+| 2000×2000 | 1m 46.573s | 54.399s | 57.713s | 0.094s† |
+| 5000×5000 | 37m 52.786s | 22m 48.886s | 19m 49.032s | 0.247s† |
 
 ### Merge Sort
 
-![Merge sort runtime vs input size, log scale, across Sequential, OpenMP, Pthreads, and MPI](assets/merge_sort_runtime.png)
+![Legacy merge sort runtime (MPI bars hatched = unverified)](assets/merge_sort_runtime.png)
 
-| Array size | Sequential | OpenMP | Pthreads | MPI (4p) |
+| Array size | Sequential | OpenMP | Pthreads | MPI (4p) † |
 |---|---|---|---|---|
-| 5 | 0.004s | 0.006s | 0.005s | 0.190s |
-| 10 | 0.004s | 0.015s | 0.005s | 0.070s |
-| 500 | 0.004s | 0.006s | 0.004s | 0.071s |
-| 2000 | 0.007s | 0.014s | 0.008s | 0.077s |
-| 5000 | 0.010s | 0.011s | 0.008s | 0.094s |
-| 500000 | 0.327s | 0.246s | 0.176s | 0.061s |
+| 5 | 0.004s | 0.006s | 0.005s | 0.190s† |
+| 10 | 0.004s | 0.015s | 0.005s | 0.070s† |
+| 500 | 0.004s | 0.006s | 0.004s | 0.071s† |
+| 2000 | 0.007s | 0.014s | 0.008s | 0.077s† |
+| 5000 | 0.010s | 0.011s | 0.008s | 0.094s† |
+| 500000 | 0.327s | 0.246s | 0.176s | 0.061s† |
 
-**Reading the tables:** at small sizes, every parallel model is *slower* than sequential — thread/process setup cost exceeds the actual work. Pthreads consistently overtakes OpenMP once arrays/matrices are large enough for coarse, well-balanced partitioning to pay off. MPI only becomes competitive once per-process computation is large relative to the fixed cost of scatter/gather.
-
-<details>
-<summary>Raw terminal output (click to expand)</summary>
-
-```
-* * * * * * * 500x500 Matrix
-with sequential     0m1.011s
-with omp             0m0.785s
-with thread2         0m0.758s
-with mpi(4p)         0m0.071s
-
-* * * * * * * Array size 500000
-with sequential      0m0.327s
-with omp              0m0.246s
-with thread2          0m0.176s
-with mpi(4p)          0m0.061s
-```
-
-Full logs for every input size are in the [written report (PDF)](./report.pdf).
-
-</details>
+What the legacy data *can* support: at small sizes the parallel models are slower than sequential (start-up cost
+dominates), and Pthreads/OpenMP matrix multiplication was roughly 1.8–2.0× (2000²) and 1.7–1.9× (5000²) faster than
+sequential on that machine. It cannot support any statement about MPI scaling.
 
 ---
 
-## Notes & Caveats
+## Limitations
 
-- The MPI results for `2000×2000` and `5000×5000` matrices (0.094s and 0.247s) are notably fast relative to the sequential baseline (106s and 2273s) for a 4-process run of an O(n³) compute-bound workload. They are reported as measured, but have not been re-verified by diffing MPI output against the sequential result — that verification is a planned follow-up before treating this as a confirmed scaling result.
-- Benchmarks are single-run wall-clock measurements, not averaged over multiple trials, so figures should be read as indicative trends rather than statistically rigorous measurements.
-- All models were compiled with `-O2`; no workload-specific compiler tuning was applied, to keep the comparison focused on the parallelization strategy itself.
+- Results depend on the machine; always read `hardware_environment.json` next to a result file.
+- Wall time includes serial text I/O and (for MPI) process launch; kernel time excludes input parsing and output printing.
+- MPI runs are single-node (shared memory transport); this measures process-level parallelism, not network scaling.
+- Sorting uses a serial final merge (inherent Amdahl limit); matrix MPI broadcasts full A and B to every rank.
+- Hyper-threads are not counted as cores: more workers than physical cores is reported as oversubscribed.
 
 ---
 
-## Tech Stack
+## Tech stack
 
-`C (gnu99)` · `OpenMP` · `POSIX Threads` · `MPI (OpenMPI)` · `Python 3` (test data generation) · `Bash` (automation) · `GNU Make`
+`C (gnu99)` · `OpenMP` · `POSIX Threads` · `MPI (OpenMPI / MPICH)` · `Python 3` (pandas, matplotlib, pytest) · `Bash` · `GNU Make` · `GitHub Actions`
 
 ---
 
 ## Author
 
-**Namra Basharat**
-BS Bioinformatics, National University of Sciences and Technology (NUST)
-Operating Systems
+**Namra Basharat** — BS Bioinformatics, National University of Sciences and Technology (NUST), School of Interdisciplinary
+Engineering & Sciences. Course: Operating Systems.
 
 ## Acknowledgments
 
-Matrix multiplication scaffold adapted from [mperlet/matrix_multiplication](https://github.com/mperlet/matrix_multiplication); Python generator and benchmarking script were rewritten for Python 3 and extended with additional input sizes and automated file-existence checks.
+The matrix-multiplication scaffold (`matrix.c/.h`, the original per-model programs, `Makefile`, `Test-Script.sh`,
+`random_float_matrix.py`) is adapted from [mperlet/matrix_multiplication](https://github.com/mperlet/matrix_multiplication)
+(MIT, © 2022 Mathias Perlet; generator by Philipp Böhm). Modifications are listed in [NOTICE](./NOTICE) and
+[CHANGELOG.md](./CHANGELOG.md). The merge-sort programs, the benchmark tooling, tests and analysis are original work.
 
 ## License
 
-[MIT](./LICENSE)
+[MIT](./LICENSE) — third-party notice in [NOTICE](./NOTICE).

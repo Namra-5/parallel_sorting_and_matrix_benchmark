@@ -6,7 +6,10 @@
 # separated by '\t'.
 #
 # Synopsis:
-#   ./gen_matrices.py 4 4
+#   ./random_float_matrix.py 4 4 [seed]
+#
+# An optional third argument seeds the generator so the matrix is exactly
+# reproducible (the benchmark harness always passes one).
 #
 # Author: Philipp Böhm
 
@@ -15,8 +18,10 @@ import random
 
 try:
     dim_x, dim_y = int(sys.argv[1]), int(sys.argv[2])
+    if len(sys.argv) > 3:
+        random.seed(int(sys.argv[3]))
 except Exception as e:
-    sys.stderr.write("error parsing matrix dimensions ...\n")
+    sys.stderr.write("error parsing matrix dimensions (usage: rows cols [seed]) ...\n")
     raise
 
 for row in range(0, dim_x):

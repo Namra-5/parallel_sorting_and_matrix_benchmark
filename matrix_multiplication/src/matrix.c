@@ -1,23 +1,28 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <malloc.h>
 #include <string.h>
 #include "matrix.h"
 
 matrix_struct *get_matrix_struct(char matrix[]) {
     matrix_struct *m = malloc(sizeof(matrix_struct));
+    if(m == NULL) {
+        fprintf(stderr, "Error: out of memory.\n");
+        exit(EXIT_FAILURE);
+    }
     m->rows = 0;
     m->cols = 0;
     FILE* myfile = fopen(matrix, "r");
     
     if(myfile == NULL) {
-        printf("Error: The file you entered could not be found.\n");
+        fprintf(stderr, "Error: The file '%s' could not be opened.\n", matrix);
         exit(EXIT_FAILURE);
     }
     // get the rows and columns
     int ch = 0;
-    do {
-        ch = fgetc(myfile);
+    int prev = '\n';   // last character seen (a file must end a row with '\n')
+    int any = 0;       // file contains at least one character
+    while ((ch = fgetc(myfile)) != EOF) {
+        any = 1;
         
         // count the columns at the first line (looking for "\t")
         if(m->rows == 0 && ch == '\t')
@@ -26,8 +31,19 @@ matrix_struct *get_matrix_struct(char matrix[]) {
         // count the rows with "\n"
         if(ch == '\n')
             m->rows++;
-            
-    } while (ch != EOF);
+
+        prev = ch;
+    }
+
+    // a last row without a terminating newline still counts as a row
+    // (it used to be dropped silently, producing a wrong result with exit code 0)
+    if(any && prev != '\n')
+        m->rows++;
+
+    if(m->rows == 0) {
+        fprintf(stderr, "Error: '%s' contains no matrix data.\n", matrix);
+        exit(EXIT_FAILURE);
+    }
     
     // write rows and cols to struct
     m->cols++;
@@ -35,8 +51,17 @@ matrix_struct *get_matrix_struct(char matrix[]) {
     // allocate memory for matrix data
     m->mat_data = calloc(m->rows, sizeof(double*)); 
     int i;
-    for(i=0; i < m->rows; ++i)
+    if(m->mat_data == NULL) {
+        fprintf(stderr, "Error: out of memory.\n");
+        exit(EXIT_FAILURE);
+    }
+    for(i=0; i < m->rows; ++i) {
         m->mat_data[i]=calloc(m->cols, sizeof(double));
+        if(m->mat_data[i] == NULL) {
+            fprintf(stderr, "Error: out of memory.\n");
+            exit(EXIT_FAILURE);
+        }
+    }
         
     
     rewind(myfile);
@@ -45,8 +70,13 @@ matrix_struct *get_matrix_struct(char matrix[]) {
     // fill matrix with data
     for(x = 0; x < m->rows; x++) {
         for(y = 0; y < m->cols; y++) {
-            if (!fscanf(myfile, "%lf", &m->mat_data[x][y])) 
-            break;
+            // fscanf returns EOF (-1) at end of file, which "!fscanf" treated as
+            // success: a truncated file silently became zeros.
+            if (fscanf(myfile, "%lf", &m->mat_data[x][y]) != 1) {
+                fprintf(stderr, "Error: '%s' is truncated or malformed (row %d, column %d).\n",
+                        matrix, x + 1, y + 1);
+                exit(EXIT_FAILURE);
+            }
         }
     }
     

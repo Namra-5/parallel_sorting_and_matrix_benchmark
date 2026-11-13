@@ -1,0 +1,8 @@
+# Shell scripts must keep LF endings or they fail under WSL/Linux after a Windows checkout
+*.sh   text eol=lf
+*.py   text eol=lf
+*.c    text eol=lf
+*.h    text eol=lf
+Makefile text eol=lf
+*.pdf  binary
+*.png  binary

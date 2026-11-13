@@ -1,137 +1,73 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Quick wall-clock timing of the four matrix-multiplication binaries (legacy convenience script).
+#
+# For validated, repeatable measurements (output checked against the sequential
+# result, several repetitions, hardware recorded) use:
+#     python3 ../benchmark/run_benchmark.py --workload matrix
+#
+# Unlike the original version of this script, a failed run is reported as FAILED
+# instead of being timed: the old `time mpirun ... | grep real` pipeline hid the
+# "not enough slots" error and printed the ~0.07 s a failed launch takes as if it
+# were a result.
+set -u
+cd "$(dirname "$0")" || exit 1
+
+MPI_NP=${MPI_NP:-4}
+# rows x inner x cols of A(rows x inner) * B(inner x cols); the default list is the original one.
+# 5000 needs ~40 minutes sequentially: drop it with e.g.  SIZES="500 2000" ./Test-Script.sh
+SIZES=${SIZES:-"5x4 10 500 2000 5000"}
+
+cores=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 1)
+mpi_flags=""
+if mpirun --version 2>&1 | grep -qi "open mpi"; then
+    [ "$(id -u)" -eq 0 ] && mpi_flags="$mpi_flags --allow-run-as-root"
+    [ "$MPI_NP" -gt "$cores" ] && mpi_flags="$mpi_flags --oversubscribe"
+fi
+
+# timed <label> <command...>: prints "with <label> <seconds>s" or FAILED (exit code, first stderr line)
+timed() {
+    local label=$1; shift
+    local errf; errf=$(mktemp)
+    local TIMEFORMAT=%R
+    local t rc
+    t=$( { time "$@" >/dev/null 2>"$errf"; echo $? >"$errf.rc"; } 2>&1 )
+    rc=$(cat "$errf.rc")
+    if [ "$rc" -eq 0 ]; then
+        printf 'with %-14s %ss\n' "$label" "$t"
+    else
+        printf 'with %-14s FAILED (exit %s): %s\n' "$label" "$rc" "$(head -n 1 "$errf")"
+    fi
+    rm -f "$errf" "$errf.rc"
+}
+
+mkdir -p bin data
 echo "generate test-matrices with python if no test data found"
-echo
-
-# ----------- 5x4 and 4x5 -----------
-if [ ! -f data/mat_5_4.txt ]; then
-    echo "generate 5x4 matrix..."
-    python3 random_float_matrix.py 5 4 > data/mat_5_4.txt
-fi
-
-if [ ! -f data/mat_4_5.txt ]; then
-    python3 random_float_matrix.py 4 5 > data/mat_4_5.txt
-
-fi
-
-# ----------- 10x10 -----------
-if [ ! -f data/mat_10x10a.txt ]; then
-    echo "generate 10x10 matrix A..."
-    python3 random_float_matrix.py 10 10 > data/mat_10x10a.txt
-fi
-
-if [ ! -f data/mat_10x10b.txt ]; then
-    echo "generate 10x10 matrix B..."
-    python3 random_float_matrix.py 10 10 > data/mat_10x10b.txt
-fi
-
-# ----------- 500x500 -----------
-if [ ! -f data/mat_500x500a.txt ]; then
-    echo "generate 500x500 matrix A..."
-    python3 random_float_matrix.py 500 500 > data/mat_500x500a.txt
-fi
-
-if [ ! -f data/mat_500x500b.txt ]; then
-    echo "generate 500x500 matrix B..."
-    python3 random_float_matrix.py 500 500 > data/mat_500x500b.txt
-fi
-
-# ----------- 2000x2000 -----------
-if [ ! -f data/mat_2000x2000a.txt ]; then
-    echo "generate 2000x2000 matrix A..."
-    python3 random_float_matrix.py 2000 2000 > data/mat_2000x2000a.txt
-fi
-
-if [ ! -f data/mat_2000x2000b.txt ]; then
-    echo "generate 2000x2000 matrix B..."
-    python3 random_float_matrix.py 2000 2000 > data/mat_2000x2000b.txt
-
-fi
-
-# ----------- 5000x5000 -----------
-if [ ! -f data/mat_5000x5000a.txt ]; then
-    echo "generate 5000x5000 matrix..."
-    python3 random_float_matrix.py 5000 5000 > data/mat_5000x5000a.txt
-fi
-if [ ! -f data/mat_5000x5000b.txt ]; then
-    python3 random_float_matrix.py 5000 5000 > data/mat_5000x5000b.txt
-fi
+# "5x4" means A is 5x4 and B is 4x5; a plain "N" means two NxN matrices.
+for s in $SIZES; do
+    case "$s" in
+        *x*) r=${s%x*}; c=${s#*x}
+             a="data/mat_${r}_${c}.txt"; b="data/mat_${c}_${r}.txt"
+             [ -s "$a" ] || { echo "generate ${r}x${c} matrix..."; python3 random_float_matrix.py "$r" "$c" > "$a"; }
+             [ -s "$b" ] || python3 random_float_matrix.py "$c" "$r" > "$b" ;;
+        *)   a="data/mat_${s}x${s}a.txt"; b="data/mat_${s}x${s}b.txt"
+             [ -s "$a" ] || { echo "generate ${s}x${s} matrix A..."; python3 random_float_matrix.py "$s" "$s" > "$a"; }
+             [ -s "$b" ] || { echo "generate ${s}x${s} matrix B..."; python3 random_float_matrix.py "$s" "$s" > "$b"; } ;;
+    esac
+done
 
 echo "compile..."
-echo
-make
+make || exit 1
 echo
 echo "calculate..."
-echo
-echo "* * * * * * * 5x4 Matrix"
-cal_t=$( { time bin/seq data/mat_5_4.txt data/mat_4_5.txt > /dev/null; } 2>&1 | grep real | awk '{print $2}' )
-echo "with sequential    $cal_t"
-
-cal_t=$( { time bin/omp data/mat_5_4.txt data/mat_4_5.txt > /dev/null; } 2>&1 | grep real | awk '{print $2}' )
-echo "with omp           $cal_t"
-
-cal_t=$( { time bin/thread2 data/mat_5_4.txt data/mat_4_5.txt > /dev/null; } 2>&1 | grep real | awk '{print $2}' )
-echo "with thread2       $cal_t"
-
-cal_t=$( { time mpirun -np 4 bin/mpi data/mat_5_4.txt data/mat_4_5.txt > /dev/null; } 2>&1 | grep real | awk '{print $2}' )
-echo "with mpi(4p)       $cal_t"
-echo
-
-
-echo "* * * * * * * 10x10 Matrix"
-cal_t=$( { time bin/seq data/mat_10x10a.txt data/mat_10x10b.txt > /dev/null; } 2>&1 | grep real | awk '{print $2}' )
-echo "with sequential    $cal_t"
-
-cal_t=$( { time bin/omp data/mat_10x10a.txt data/mat_10x10b.txt > /dev/null; } 2>&1 | grep real | awk '{print $2}' )
-echo "with omp           $cal_t"
-
-cal_t=$( { time bin/thread2 data/mat_10x10a.txt data/mat_10x10b.txt > /dev/null; } 2>&1 | grep real | awk '{print $2}' )
-echo "with thread2       $cal_t"
-
-cal_t=$( { time mpirun -np 4 bin/mpi data/mat_10x10a.txt data/mat_10x10b.txt > /dev/null; } 2>&1 | grep real | awk '{print $2}' )
-echo "with mpi(4p)       $cal_t"
-echo
-
-
-echo "* * * * * * * 500x500 Matrix"
-cal_t=$( { time bin/seq data/mat_500x500a.txt data/mat_500x500b.txt > /dev/null; } 2>&1 | grep real | awk '{print $2}' )
-echo "with sequential    $cal_t"
-
-cal_t=$( { time bin/omp data/mat_500x500a.txt data/mat_500x500b.txt > /dev/null; } 2>&1 | grep real | awk '{print $2}' )
-echo "with omp           $cal_t"
-
-cal_t=$( { time bin/thread2 data/mat_500x500a.txt data/mat_500x500b.txt > /dev/null; } 2>&1 | grep real | awk '{print $2}' )
-echo "with thread2       $cal_t"
-
-cal_t=$( { time mpirun -np 4 bin/mpi data/mat_500x500a.txt data/mat_500x500b.txt > /dev/null; } 2>&1 | grep real | awk '{print $2}' )
-echo "with mpi(4p)       $cal_t"
-echo
-
-
-echo "* * * * * * * 2000x2000 Matrix"
-cal_t=$( { time bin/seq data/mat_2000x2000a.txt data/mat_2000x2000b.txt > /dev/null; } 2>&1 | grep real | awk '{print $2}' )
-echo "with sequential    $cal_t"
-
-cal_t=$( { time bin/omp data/mat_2000x2000a.txt data/mat_2000x2000b.txt > /dev/null; } 2>&1 | grep real | awk '{print $2}' )
-echo "with omp           $cal_t"
-
-cal_t=$( { time bin/thread2 data/mat_2000x2000a.txt data/mat_2000x2000b.txt > /dev/null; } 2>&1 | grep real | awk '{print $2}' )
-echo "with thread2       $cal_t"
-
-cal_t=$( { time mpirun -np 4 bin/mpi data/mat_2000x2000a.txt data/mat_2000x2000b.txt > /dev/null; } 2>&1 | grep real | awk '{print $2}' )
-echo "with mpi(4p)       $cal_t"
-echo
-
-
-echo "* * * * * * * 5000x5000 Matrix"
-cal_t=$( { time bin/seq data/mat_5000x5000a.txt data/mat_5000x5000b.txt > /dev/null; } 2>&1 | grep real | awk '{print $2}' )
-echo "with sequential    $cal_t"
-
-cal_t=$( { time bin/omp data/mat_5000x5000a.txt data/mat_5000x5000b.txt > /dev/null; } 2>&1 | grep real | awk '{print $2}' )
-echo "with omp           $cal_t"
-
-cal_t=$( { time bin/thread2 data/mat_5000x5000a.txt data/mat_5000x5000b.txt > /dev/null; } 2>&1 | grep real | awk '{print $2}' )
-echo "with thread2       $cal_t"
-
-cal_t=$( { time mpirun -np 4 bin/mpi data/mat_5000x5000a.txt data/mat_5000x5000b.txt > /dev/null; } 2>&1 | grep real | awk '{print $2}' )
-echo "with mpi(4p)       $cal_t"
-echo
+for s in $SIZES; do
+    case "$s" in
+        *x*) r=${s%x*}; c=${s#*x}; a="data/mat_${r}_${c}.txt"; b="data/mat_${c}_${r}.txt"; label="${r}x${c}" ;;
+        *)   a="data/mat_${s}x${s}a.txt"; b="data/mat_${s}x${s}b.txt"; label="${s}x${s}" ;;
+    esac
+    echo
+    echo "* * * * * * * ${label} Matrix"
+    timed sequential bin/seq "$a" "$b"
+    timed omp        bin/omp "$a" "$b"
+    timed thread2    bin/thread2 "$a" "$b"
+    timed "mpi(${MPI_NP}p)" mpirun $mpi_flags -np "$MPI_NP" bin/mpi "$a" "$b"
+done

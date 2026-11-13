@@ -1,87 +1,77 @@
+#include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <mpi.h>
 #include "array.h"
+#include "msort.h"
+#include "bench_common.h"
 
-static void merge(int *arr,int l,int m,int r){
-    int n1 = m-l+1;
-    int n2 = r-m;
-    int *L = malloc(n1*sizeof(int));
-    int *R = malloc(n2*sizeof(int));
-    for(int i=0;i<n1;i++) L[i]=arr[l+i];
-    for(int i=0;i<n2;i++) R[i]=arr[m+1+i];
-    int i=0,j=0,k=l;
-    while(i<n1 && j<n2)
-        arr[k++] = (L[i]<=R[j])?L[i++]:R[j++];
-    while(i<n1) arr[k++] = L[i++];
-    while(j<n2) arr[k++] = R[j++];
-    free(L); free(R);
-}
+/* Distributed merge sort: Scatterv -> local msort_seq -> Gatherv -> merge on
+ * rank 0. Uses Scatterv/Gatherv so ANY n works with ANY number of ranks (the
+ * previous Scatter/Gather version required n % ranks == 0 and otherwise
+ * returned a wrongly sorted array with exit code 0). */
+int main(int argc, char **argv)
+{
+    MPI_Init(&argc, &argv);
+    int rank, size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-static void merge_sort_seq(int *arr,int l,int r){
-    if(l >= r) return;
-    int m = l + (r-l)/2;
-    merge_sort_seq(arr,l,m);
-    merge_sort_seq(arr,m+1,r);
-    merge(arr,l,m,r);
-}
-
-int main(int argc,char **argv){
-    MPI_Init(&argc,&argv);
-    int rank,size;
-    MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-    MPI_Comm_size(MPI_COMM_WORLD,&size);
-
-    int *arr=NULL;
-    int n=0;
-
-    if(rank==0){
-        if(argc!=2){
-            printf("Provide one input file.\n");
-            MPI_Abort(MPI_COMM_WORLD,1);
+    array_struct *input = NULL;
+    int n = 0;
+    if (rank == 0) {
+        if (argc != 2) {
+            fprintf(stderr, "Usage: %s <input-file>\n", argv[0]);
+            MPI_Abort(MPI_COMM_WORLD, 1);
         }
-        array_struct *a = get_array_struct(argv[1]);
-        arr = a->data;
-        n = a->size;
+        input = get_array_struct(argv[1]);
+        n = (int)input->size;
+    }
+    MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
+    int *counts = malloc((size_t)size * sizeof(int));
+    int *displs = malloc((size_t)size * sizeof(int));
+    int *bounds = malloc(((size_t)size + 1) * sizeof(int));
+    if (!counts || !displs || !bounds)
+        MPI_Abort(MPI_COMM_WORLD, 1);
+    int base = n / size, extra = n % size, offset = 0;
+    for (int i = 0; i < size; i++) {
+        counts[i] = base + (i < extra ? 1 : 0);
+        displs[i] = offset;
+        offset += counts[i];
     }
 
-    MPI_Bcast(&n,1,MPI_INT,0,MPI_COMM_WORLD);
+    int mine = counts[rank];
+    int *local = malloc((mine ? (size_t)mine : 1) * sizeof(int));
+    int *tmp = malloc((rank == 0 ? (n ? (size_t)n : 1) : (mine ? (size_t)mine : 1)) * sizeof(int));
+    int *sorted = (rank == 0) ? malloc((n ? (size_t)n : 1) * sizeof(int)) : NULL;
+    if (!local || !tmp || (rank == 0 && !sorted))
+        MPI_Abort(MPI_COMM_WORLD, 1);
 
-    int chunk = (n + size - 1) / size;
+    MPI_Barrier(MPI_COMM_WORLD);       /* timed region starts after input is read */
+    double t0 = MPI_Wtime();
 
-    int *local = malloc(chunk*sizeof(int));
+    MPI_Scatterv(rank == 0 ? input->data : NULL, counts, displs, MPI_INT,
+                 local, mine, MPI_INT, 0, MPI_COMM_WORLD);
+    msort_seq(local, tmp, 0, mine - 1);
+    MPI_Gatherv(local, mine, MPI_INT,
+                sorted, counts, displs, MPI_INT, 0, MPI_COMM_WORLD);
 
-    MPI_Scatter(arr,chunk,MPI_INT,local,chunk,MPI_INT,0,MPI_COMM_WORLD);
-
-    merge_sort_seq(local,0,chunk-1);
-
-    int *sorted=NULL;
-    if(rank==0) sorted = malloc(chunk*size*sizeof(int));
-
-    MPI_Gather(local,chunk,MPI_INT,sorted,chunk,MPI_INT,0,MPI_COMM_WORLD);
-
-    if(rank==0){
-        int real=n;
-        while(chunk < real){
-            int left = 0;
-            while(left + chunk < real){
-                int mid = left + chunk -1;
-                int right =
-                    (left + 2*chunk -1 < real)?
-                    (left + 2*chunk -1):
-                    (real-1);
-                merge(sorted,left,mid,right);
-                left += 2*chunk;
-            }
-            chunk*=2;
-        }
-        for(int i=0;i<n;i++) printf("%d\t",sorted[i]);
-        printf("\n");
+    if (rank == 0) {
+        for (int i = 0; i < size; i++)
+            bounds[i] = displs[i];
+        bounds[size] = n;
+        msort_merge_runs(sorted, tmp, bounds, size);
+        bench_report(MPI_Wtime() - t0);
+        print_ints(sorted, (unsigned int)n);
         free(sorted);
-        free(arr);
+        free_array(input);
     }
 
     free(local);
+    free(tmp);
+    free(bounds);
+    free(displs);
+    free(counts);
     MPI_Finalize();
     return 0;
 }

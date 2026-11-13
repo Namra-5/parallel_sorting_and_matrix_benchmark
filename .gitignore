@@ -1,0 +1,12 @@
+# compiled binaries (keep the .gitkeep placeholders)
+*/bin/*
+!*/bin/.gitkeep
+# generated test inputs (the 5000x5000 matrices are ~0.5 GB each)
+*/data/*
+!*/data/.gitkeep
+benchmark/data/
+# scratch output of smoke runs; benchmark/results/ is intentionally NOT ignored: it holds the published dataset
+benchmark/results_smoke/
+*.tmp
+__pycache__/
+.pytest_cache/
