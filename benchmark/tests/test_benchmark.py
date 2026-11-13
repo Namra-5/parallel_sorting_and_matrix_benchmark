@@ -70,22 +70,82 @@ def test_default_workers():
     assert rb.default_workers(8) == [1, 2, 4, 8]
 
 
-def test_build_cmd_flags_per_mpi_flavour():
+def test_build_cmd_uses_the_probed_mpi_flags():
     wdir = Path("/x")
-    ctx = {"cores": 2, "flavor": "openmpi"}
+    ctx = {"cores": 2, "flavor": "openmpi", "mpi_root": ["--allow-run-as-root"], "mpi_oversub": ["--map-by", ":oversubscribe"]}
     cmd, env, over = rb.build_cmd("mpi", wdir, ["in"], 4, ctx)
-    assert over and "--oversubscribe" in cmd and cmd[-2:] == ["/x/bin/mpi", "in"]
-    assert cmd[cmd.index("-np") + 1] == "4"
-    cmd, _, over = rb.build_cmd("mpi", wdir, ["in"], 2, ctx)
-    assert not over and "--oversubscribe" not in cmd
-    cmd, _, over = rb.build_cmd("mpi", wdir, ["in"], 4, {"cores": 2, "flavor": "mpich"})
-    assert over and "--oversubscribe" not in cmd and "--allow-run-as-root" not in cmd
+    assert over and cmd[:4] == ["mpirun", "--allow-run-as-root", "--map-by", ":oversubscribe"]
+    assert cmd[cmd.index("-np") + 1] == "4" and cmd[-2:] == ["/x/bin/mpi", "in"]
+    cmd, _, over = rb.build_cmd("mpi", wdir, ["in"], 2, ctx)           # not oversubscribed: no oversubscribe flag
+    assert not over and "--map-by" not in cmd and "--oversubscribe" not in cmd
+    cmd, _, over = rb.build_cmd("mpi", wdir, ["in"], 4, {"cores": 2, "flavor": "mpich"})   # nothing probed (e.g. MPICH)
+    assert over and cmd[0] == "mpirun" and cmd[1] == "-np"
     _, env, over = rb.build_cmd("omp", wdir, ["in"], 8, ctx)
     assert env["OMP_NUM_THREADS"] == "8" and over
     _, env, over = rb.build_cmd("thread2", wdir, ["in"], 2, ctx)
     assert env["BENCH_THREADS"] == "2" and env["OMP_NUM_THREADS"] == "1" and not over
     _, env, over = rb.build_cmd("seq", wdir, ["in"], 1, ctx)
     assert not over and env["BENCH_TIMING"] == "1"
+
+
+FAKE_MPIRUN = """#!/bin/sh
+# imitates mpirun: refuses np > 1 ("not enough slots") unless an oversubscribe flag it knows is given
+over=0; np=1
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --oversubscribe) if [ "$OLD_FLAG" = ok ]; then over=1; [ "$OLD_FLAG_WARNS" = 1 ] && echo "WARNING: deprecated option" >&2; shift;
+                     else echo "mpirun: unrecognized argument oversubscribe" >&2; exit 2; fi ;;
+    --map-by) shift; case "$1" in *versubscribe*) if [ "$MAPBY" = ok ]; then over=1; else echo "bad map-by" >&2; exit 2; fi;; esac; shift ;;
+    --allow-run-as-root) shift ;;
+    -np) np=$2; shift 2 ;;
+    *) break ;;
+  esac
+done
+if [ "$np" -gt 1 ] && [ "$over" = 0 ]; then echo "There are not enough slots available" >&2; exit 1; fi
+exec "$@"
+"""
+
+
+@pytest.fixture
+def fake_mpirun(tmp_path, monkeypatch):
+    d = tmp_path / "bin"
+    d.mkdir()
+    f = d / "mpirun"
+    f.write_text(FAKE_MPIRUN)
+    f.chmod(0o755)
+    monkeypatch.setenv("PATH", f"{d}:" + __import__("os").environ["PATH"])
+    for k in ("OLD_FLAG", "OLD_FLAG_WARNS", "MAPBY"):
+        monkeypatch.delenv(k, raising=False)
+    return monkeypatch
+
+
+def test_probe_prefers_the_clean_classic_flag(fake_mpirun):          # Open MPI 4 style
+    fake_mpirun.setenv("OLD_FLAG", "ok"); fake_mpirun.setenv("MAPBY", "ok")
+    assert rb.mpi_launch_options(2)["mpi_oversub"] == ["--oversubscribe"]
+
+
+def test_probe_falls_back_to_map_by_when_classic_flag_only_warns(fake_mpirun):   # PRRTE / Open MPI 5 style
+    fake_mpirun.setenv("OLD_FLAG", "ok"); fake_mpirun.setenv("OLD_FLAG_WARNS", "1"); fake_mpirun.setenv("MAPBY", "ok")
+    assert rb.mpi_launch_options(2)["mpi_oversub"] == ["--map-by", ":oversubscribe"]
+
+
+def test_probe_uses_a_noisy_flag_if_it_is_the_only_one(fake_mpirun):
+    fake_mpirun.setenv("OLD_FLAG", "ok"); fake_mpirun.setenv("OLD_FLAG_WARNS", "1")
+    assert rb.mpi_launch_options(2)["mpi_oversub"] == ["--oversubscribe"]
+
+
+def test_probe_returns_none_when_no_flag_is_understood(fake_mpirun):  # e.g. MPICH
+    assert rb.mpi_launch_options(2)["mpi_oversub"] is None
+
+
+def test_flavor_recognises_prrte_launcher(tmp_path, monkeypatch):
+    """Regression: Ubuntu 26's mpirun is PRRTE's prterun; its --version never says 'Open MPI'."""
+    d = tmp_path / "bin"; d.mkdir()
+    for name in ("mpirun", "mpiexec"):
+        f = d / name
+        f.write_text("#!/bin/sh\necho 'prterun (PRRTE) 3.0.14'\n"); f.chmod(0o755)
+    monkeypatch.setenv("PATH", f"{d}:" + __import__("os").environ["PATH"])
+    assert rb.mpi_flavor() == "openmpi"
 
 
 def test_parse_time_formats():

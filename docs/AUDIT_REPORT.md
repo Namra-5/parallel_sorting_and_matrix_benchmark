@@ -64,10 +64,13 @@ single-core CI runner). Not tested: macOS, MPICH, native Windows/WSL, any machin
    multi-core machine and publish `hardware_environment.json` with the CSVs.
 2. The matrix kernel keeps the cache-unfriendly `i-j-k` order from upstream. Changing it (e.g. `i-k-j`, which keeps summation order and
    byte-identical output) would make runs far faster, but changes the baseline relative to the report, so it was documented, not changed.
-3. Not tested here: macOS (needs `brew install gcc open-mpi`), MPICH, WSL. The code paths for them exist (flavour detection) but
+3. Not tested here: macOS (needs `brew install gcc open-mpi`), MPICH, native Windows. Open MPI 4.1.6 (Ubuntu 24.04, WSL) and Open MPI 5.0.11 / PRRTE (the Ubuntu 26 CI runner's launcher) were exercised. The MPICH path (no oversubscribe flag found) exists but
    were verified only by unit tests of the command construction.
 4. Input broadcast in matrix MPI sends full A and B to every rank (design inherited from upstream); `int` counts limit matrices to
    about 46 000 × 46 000 elements per side.
+
+## Post-release correction (found by CI)
+The first GitHub Actions run failed on `ubuntu-latest` (by then Ubuntu 26, Open MPI 5 with an external PRRTE). My harness chose MPI launch flags from the `mpirun --version` text; that launcher prints "prterun (PRRTE)", so no oversubscribe flag was added and every `-np` above the slot count failed with `prte-rmaps-base:alloc-error` ("not enough slots"). I had only tested Open MPI 4.1.6. Fix: flags are discovered by launching a trivial program oversubscribed and keeping the first spelling that works cleanly. Reproduced locally with Open MPI 5.0.11 behind a `prterun` wrapper, fixed, and covered by unit tests with fake launchers.
 
 ## Review method
 Beyond the checklist I did a structured multi-perspective pass (HPC engineer, security reviewer, scientific-methods reviewer, and an

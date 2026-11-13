@@ -21,8 +21,11 @@ spec.loader.exec_module(rb)
 HAVE_C = shutil.which("gcc") and shutil.which("make")
 HAVE_MPI = shutil.which("mpicc") and shutil.which("mpirun")
 pytestmark = pytest.mark.skipif(not HAVE_C, reason="gcc and make required")
-# cores=1 makes the harness add --oversubscribe (OpenMPI) for every np > 1, whatever machine the tests run on
-CTX = {"cores": 1, "flavor": rb.mpi_flavor() if shutil.which("mpirun") else "none"}
+# cores=1 makes the harness oversubscribe every np > 1, whatever machine the tests run on. The flags are PROBED against the
+# installed mpirun exactly as the real harness does (Open MPI 4, Open MPI 5/PRRTE and MPICH spell them differently).
+CTX = {"cores": 1, "flavor": rb.mpi_flavor() if shutil.which("mpirun") else "none", "mpi_root": [], "mpi_oversub": None}
+if HAVE_MPI:
+    CTX.update(rb.mpi_launch_options(1))
 
 
 @pytest.fixture(scope="module")

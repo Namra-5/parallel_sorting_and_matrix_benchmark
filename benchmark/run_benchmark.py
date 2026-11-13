@@ -22,7 +22,7 @@ Two times are recorded per run:
 Both are kept; wall_s is what `time` measured before, kernel_s is the clean scaling signal.
 
 Oversubscription: a configuration with more workers than usable *physical* cores is flagged `oversubscribed=True`. It is
-still run (and OpenMPI is given --oversubscribe so the launch does not fail) but standardize.py never treats it as a
+still run (and mpirun is given whichever oversubscribe flag it was found to accept, so the launch does not fail) but standardize.py never treats it as a
 valid scaling data point.
 """
 from __future__ import annotations
@@ -191,13 +191,46 @@ def effective_cores() -> int:
 
 
 def mpi_flavor() -> str:
-    """openmpi | mpich | unknown. Only OpenMPI understands --oversubscribe / --allow-run-as-root."""
+    """openmpi | mpich | unknown. Informational only: launch flags are chosen by probing (mpi_launch_options)."""
     text = (_out(["mpirun", "--version"]) + _out(["mpiexec", "--version"])).lower()
-    if "open mpi" in text or "open-mpi" in text:
-        return "openmpi"
+    if "open mpi" in text or "open-mpi" in text or "prrte" in text or "prterun" in text:
+        return "openmpi"  # PRRTE is the launcher of Open MPI 5; Debian/Ubuntu ship it as a separate package
     if "hydra" in text or "mpich" in text:
         return "mpich"
     return "unknown"
+
+
+def mpi_launch_options(cores: int) -> dict:
+    """Find, by actually launching a trivial program, which flags this mpirun needs and understands.
+
+    Version strings are unreliable (Ubuntu 26's `mpirun` is PRRTE's `prterun` and never says "Open MPI"), and the flag
+    spelling differs between releases, so each candidate is tested: an oversubscribed launch (cores + 2 ranks of
+    `true`) must exit 0. A candidate that also prints a warning (deprecated spelling) is used only if no clean one works.
+    Returns {"mpi_root": [...], "mpi_oversub": [...] or None}.
+    """
+    true_bin = shutil.which("true") or "/bin/true"
+
+    def launch(args: list[str], np: int):
+        try:
+            return subprocess.run(["mpirun", *args, "-np", str(np), true_bin], capture_output=True, text=True,
+                                  timeout=120, stdin=subprocess.DEVNULL)
+        except Exception:
+            return None
+
+    root: list[str] = []
+    if hasattr(os, "geteuid") and os.geteuid() == 0:
+        p = launch(["--allow-run-as-root"], 1)
+        if p is not None and p.returncode == 0:
+            root = ["--allow-run-as-root"]
+    clean = noisy = None
+    for cand in (["--oversubscribe"], ["--map-by", ":oversubscribe"]):
+        p = launch(root + cand, cores + 2)
+        if p is not None and p.returncode == 0:
+            if not p.stderr.strip():
+                clean = cand
+                break
+            noisy = noisy or cand
+    return {"mpi_root": root, "mpi_oversub": clean or noisy}
 
 
 def makefile_flags(wdir: Path) -> str:
@@ -250,6 +283,7 @@ def hardware(ctx: dict, notes: str) -> dict:
         "cores_per_socket": lscpu.get("Core(s) per socket"), "threads_per_core": lscpu.get("Thread(s) per core"),
         "cpu_governor": governor, "memory_total_gib": mem,
         "gcc": first(["gcc", "--version"]), "mpirun": first(["mpirun", "--version"]), "mpi_flavor": ctx["flavor"],
+        "mpi_launch_flags": {"root": ctx.get("mpi_root"), "oversubscribe": ctx.get("mpi_oversub")},
         "cflags_matrix": makefile_flags(ROOT / "matrix_multiplication"),
         "cflags_mergesort": makefile_flags(ROOT / "merge_sort"),
         "data_seed": SEED, "git": git_state(), "notes": notes,
@@ -317,12 +351,9 @@ def build_cmd(model: str, wdir: Path, inputs: list[str], workers: int, ctx: dict
         env["BENCH_THREADS"] = str(workers)
         return [binary, *inputs], env, over
     if model == "mpi":
-        cmd = ["mpirun"]
-        if ctx["flavor"] == "openmpi":
-            if hasattr(os, "geteuid") and os.geteuid() == 0:
-                cmd.append("--allow-run-as-root")
-            if over:
-                cmd.append("--oversubscribe")  # otherwise OpenMPI refuses np > slots and exits in ~0.06 s
+        cmd = ["mpirun", *ctx.get("mpi_root", [])]
+        if over:
+            cmd += ctx.get("mpi_oversub") or []  # without it the launcher refuses np > slots in ~0.06 s
         return cmd + ["-np", str(workers), binary, *inputs], env, over
     return [binary, *inputs], env, False
 
@@ -373,21 +404,24 @@ def main(argv=None) -> int:
         sys.exit("ERROR: `make` and `gcc` are required (see README prerequisites).")
     logical = usable_logical_cores()
     ctx = {"logical": logical, "physical": physical_cores(logical), "cgroup_limit": cgroup_cpu_limit(),
-           "cores": effective_cores(), "flavor": mpi_flavor() if shutil.which("mpirun") else "none"}
+           "cores": effective_cores(), "flavor": mpi_flavor() if shutil.which("mpirun") else "none",
+           "mpi_root": [], "mpi_oversub": None}
     workers = a.workers or default_workers(ctx["cores"])
     want_mpi = shutil.which("mpicc") is not None and shutil.which("mpirun") is not None
     if not want_mpi:
         print("WARNING: mpicc/mpirun not found - MPI is skipped", file=sys.stderr)
-    if want_mpi and ctx["flavor"] == "unknown":
-        print("WARNING: unrecognised MPI implementation: no --oversubscribe/--allow-run-as-root flags are added",
-              file=sys.stderr)
+    if want_mpi:
+        ctx.update(mpi_launch_options(ctx["cores"]))
+        if ctx["mpi_oversub"] is None:
+            print("WARNING: no working oversubscribe flag found for this mpirun: MPI runs with more ranks than slots "
+                  "will fail and be recorded as 'failed'", file=sys.stderr)
     out = Path(a.out_dir)
     out.mkdir(parents=True, exist_ok=True)
     data = HERE / "data"
     data.mkdir(exist_ok=True)
     (out / "hardware_environment.json").write_text(json.dumps(hardware(ctx, a.notes), indent=2))
     print(f"effective cores: {ctx['cores']} (physical {ctx['physical']}, usable logical {ctx['logical']}); "
-          f"workers: {workers}; MPI: {ctx['flavor']}", flush=True)
+          f"workers: {workers}; MPI: {ctx['flavor']} (oversubscribe flag: {ctx.get('mpi_oversub')})", flush=True)
 
     jobs = []
     if a.workload in ("matrix", "both"):

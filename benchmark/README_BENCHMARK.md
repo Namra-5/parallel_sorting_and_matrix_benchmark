@@ -60,7 +60,7 @@ Only `ok` rows enter `benchmark_results.csv`.
 
 ## `hardware_environment.json`
 OS, CPU model, usable logical CPUs, physical cores, container CPU quota, effective cores, governor, memory, `gcc` and
-`mpirun` versions, MPI flavour, the compiler flags read from each Makefile, the data seed, the git commit (and whether the
+`mpirun` versions, MPI flavour, the oversubscribe/root flags found by probing, the compiler flags read from each Makefile, the data seed, the git commit (and whether the
 tree was dirty), and your `--notes`. Always publish it next to the results.
 
 ## Reading results correctly

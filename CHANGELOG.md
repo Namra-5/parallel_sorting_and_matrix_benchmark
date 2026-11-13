@@ -3,6 +3,7 @@
 ## 2.0.0 — audit and validation release
 
 ### Fixed (correctness)
+- CI on Ubuntu 26 (Open MPI 5, where `mpirun` is PRRTE's `prterun` and never prints "Open MPI"): the harness did not recognise the launcher, added no oversubscribe flag, and `mpirun -np 3` failed with "not enough slots". Flags are now probed, not inferred from version text; regression-tested with fake launchers and verified against Open MPI 4.1.6 and 5.0.11.
 - `merge_sort/src/mpi.c`: wrong output with exit code 0 when n % ranks != 0 → `MPI_Scatterv`/`Gatherv` (any n, any ranks).
 - `merge_sort/src/omp.c`: nested `parallel sections` ran on one thread (default `max-active-levels = 1`) → tasks with cut-off.
 - `merge_sort/src/thread2.c`: hang for n < cores → thread count capped at n, balanced partition.
@@ -14,7 +15,7 @@
 
 ### Added
 - `common/bench_common.h` (kernel timer, `BENCH_THREADS`), `merge_sort/src/msort.[ch]` (one shared sorting kernel).
-- Harness: MPI-flavour-aware launch flags, effective-core detection (affinity, SMT, cgroup quota), `oversubscribed` flag
+- Harness: MPI launch flags found by probing `mpirun` with a trivial oversubscribed launch (works for Open MPI 4, Open MPI 5 / PRRTE, and degrades cleanly for MPICH), effective-core detection (affinity, SMT, cgroup quota), `oversubscribed` flag
   for every model, `kernel_s`, incremental `raw_runs.csv`, input manifest, git/compiler/MPI/hardware record, exit code 1 on invalid runs.
 - `standardize.py`: baselines matched on workload+size(+model), `speedup_vs_1worker`, kernel speedups, `PARTIAL` status, `scaling_valid`.
 - `plot_results.py`, tests (unit + regression with Python oracles), sanitizer CI job, `ERRATA.md`, `CITATION.cff`.

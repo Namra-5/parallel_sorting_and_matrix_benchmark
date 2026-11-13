@@ -157,7 +157,7 @@ Select only rows with `scaling_valid == True` when making scaling claims.
 | 6 | Parsers silently accepted bad input: a non-integer token truncated the array; a matrix without final newline lost its last row; a truncated matrix became zeros. | Explicit errors on stderr, non-zero exit. |
 | 7 | The driver's timeout never fired for a silent hang (blocking `read`). | Reader threads + process-group kill; regression test. |
 | 8 | Root-level `.gitkeep` contained `.gitignore` rules and so ignored nothing. | Replaced by a real `.gitignore` (data files, binaries, results). |
-| 9 | Portability: `<malloc.h>` does not exist on macOS; OpenMPI-only flags were passed unconditionally. | Removed; flags chosen by detected MPI flavour. |
+| 9 | Portability: `<malloc.h>` does not exist on macOS; OpenMPI-only flags were passed unconditionally. | Removed; MPI launch flags are found by probing the installed `mpirun` (the spelling differs between Open MPI 4, Open MPI 5/PRRTE and MPICH). |
 | 10 | Four duplicated `merge()` copies. | One shared kernel. |
 
 Statements in the original [report.pdf](./report.pdf) that these findings affect are listed in [ERRATA.md](./ERRATA.md).
