@@ -10,7 +10,6 @@
 - `matrix_multiplication/src/mpi.c`: required rows % ranks == 0 → any rank count; uses `size_t` for index arithmetic.
 - `matrix_multiplication/src/thread2.c`: balanced row split, no per-thread leaks, explicit thread count.
 - Input parsing: non-integer tokens, empty/truncated matrices and a missing final newline are now detected (stderr, non-zero exit).
-- `benchmark/run_benchmark.py`: the timeout never fired for a silent hang; fixed (reader threads, process-group kill).
 - `Test-Script.sh` (both): failed runs are reported as FAILED instead of being timed.
 
 ### Added
@@ -18,16 +17,16 @@
 - Harness: MPI launch flags found by probing `mpirun` with a trivial oversubscribed launch (works for Open MPI 4, Open MPI 5 / PRRTE, and degrades cleanly for MPICH), effective-core detection (affinity, SMT, cgroup quota), `oversubscribed` flag
   for every model, `kernel_s`, incremental `raw_runs.csv`, input manifest, git/compiler/MPI/hardware record, exit code 1 on invalid runs.
 - `standardize.py`: baselines matched on workload+size(+model), `speedup_vs_1worker`, kernel speedups, `PARTIAL` status, `scaling_valid`.
-- `plot_results.py`, tests (unit + regression with Python oracles), sanitizer CI job, `ERRATA.md`, `CITATION.cff`.
+- `plot_results.py`, `docs/ENGINEERING_NOTES.md`, tests (unit + regression with Python oracles), sanitizer CI job, `ERRATA.md`, `CITATION.cff`.
 - Optional seed argument for both data generators (cached data from the earlier harness is byte-identical).
 
 ### Changed
 - Makefiles: `-ffp-contract=off`, `mkdir -p bin`, `.PHONY`, `EXTRA_CFLAGS`, removed the dead `thread` target.
 - `<malloc.h>` removed (macOS portability); error messages go to stderr.
-- README rewritten; legacy MPI figures marked unverified and charts redrawn accordingly.
+- README rewritten around validated measurements; the 2025 result tables and charts were removed (the affected statements of the report are listed in `ERRATA.md`).
 - Root `.gitkeep` (which held ignore rules) replaced by a working `.gitignore`.
 - NOTICE lists the modifications to upstream files; LICENSE year range aligned with NOTICE.
 
 ### Note on comparability
 The sorting binaries now share one kernel that uses a single scratch buffer instead of two `malloc`s per merge, so absolute
-sorting times are not comparable with the legacy table (produced by the older code).
+sorting times are not comparable with measurements made with the earlier code.
