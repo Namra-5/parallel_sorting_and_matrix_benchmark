@@ -9,7 +9,7 @@ run_benchmark.py  -->  results/raw_runs.csv  ----\
 ```
 
 ```bash
-python benchmark/run_benchmark.py --smoke                       # seconds; what CI runs (writes benchmark/results_smoke/)
+python benchmark/run_benchmark.py --smoke                       # seconds; what CI runs (writes benchmark/results_smoke/ locally)
 python benchmark/run_benchmark.py --workload both --matrix-sizes 500 1000 2000 --sort-sizes 50000 500000 5000000 --reps 5 \
        --notes "bare metal, Ubuntu 24.04, performance governor, idle machine"
 python benchmark/standardize.py
@@ -61,7 +61,7 @@ Only `ok` rows enter `benchmark_results.csv`.
 ## `hardware_environment.json`
 OS, CPU model, usable logical CPUs, physical cores, container CPU quota, effective cores, governor, memory, `gcc` and
 `mpirun` versions, MPI flavour, the oversubscribe/root flags found by probing, the compiler flags read from each Makefile, the data seed, the git commit (and whether the
-tree was dirty), and your `--notes`. Always publish it next to the results.
+tree was dirty), and the free-text `--notes`. Always publish it next to the results.
 
 ## Reading results correctly
 - `wall_s` includes serial input parsing, so it caps speedup (Amdahl). Use `kernel_*` columns for the scaling behaviour of
@@ -69,4 +69,3 @@ tree was dirty), and your `--notes`. Always publish it next to the results.
 - MPI on one node measures process-level parallelism over shared memory, not network scaling. `mpirun` start-up is a
   fixed cost of several tenths of a second on small machines; it is part of `wall_s` and absent from `kernel_s`.
 - Hyper-threads do not count as cores: an 8-thread run on a 4-core/8-thread CPU is flagged oversubscribed.
-- `legacy_single_run_results.csv` holds the 2025 README tables (all MPI rows flagged); it is provenance, not data to cite.

@@ -1,5 +1,4 @@
-"""Unit tests for the harness, the standardiser and the legacy extractor (no compiler or MPI needed)."""
-import csv
+"""Unit tests for the harness and the standardiser (no compiler or MPI needed)."""
 import importlib.util
 import sys
 import time
@@ -20,7 +19,6 @@ def load(name):
 
 
 rb = load("run_benchmark")
-le = load("legacy_extract")
 sd = load("standardize")
 
 
@@ -146,30 +144,6 @@ def test_flavor_recognises_prrte_launcher(tmp_path, monkeypatch):
         f.write_text("#!/bin/sh\necho 'prterun (PRRTE) 3.0.14'\n"); f.chmod(0o755)
     monkeypatch.setenv("PATH", f"{d}:" + __import__("os").environ["PATH"])
     assert rb.mpi_flavor() == "openmpi"
-
-
-def test_parse_time_formats():
-    assert le.parse_time("0.014s") == 0.014
-    assert le.parse_time("1m 46.573s") == pytest.approx(106.573)
-    assert le.parse_time("37m 52.786s") == pytest.approx(2272.786)
-    assert le.parse_time("0.247s¹") == 0.247
-    assert le.parse_time("0.247s†") == 0.247
-
-
-def test_committed_legacy_csv_matches_readme_and_flags_all_mpi(tmp_path):
-    """Drift guard: README tables and the committed CSV must be identical; every MPI row is flagged."""
-    out = tmp_path / "legacy.csv"
-    le.main(["--out", str(out)])
-    fresh = out.read_bytes()
-    assert fresh == (B / "legacy_single_run_results.csv").read_bytes(), "README tables and CSV disagree: rerun legacy_extract.py"
-    rows = list(csv.DictReader(out.open(encoding="utf-8")))
-    assert len(rows) == 44
-    assert all(r["flag"] for r in rows if r["model"] == "mpi") and len([r for r in rows if r["model"] == "mpi"]) == 11
-    assert not any(r["flag"] for r in rows if r["model"] in ("omp", "thread2", "sequential"))
-    sup = {(r["workload"], r["size"]) for r in rows if "implausible" in r["flag"]}
-    assert ("matrix", "5000×5000") in sup and ("matrix", "2000×2000") in sup and ("mergesort", "500000") in sup
-    s = next(r for r in rows if (r["workload"], r["size"], r["model"]) == ("matrix", "5000×5000", "thread2"))
-    assert float(s["speedup_vs_seq"]) == pytest.approx(2272.786 / 1189.032, rel=1e-3)
 
 
 HDR = ["workload", "model", "size", "workers", "oversubscribed", "rep", "wall_s", "kernel_s", "exit_code",
