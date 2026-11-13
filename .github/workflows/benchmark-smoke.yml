@@ -1,0 +1,61 @@
+name: benchmark-smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: benchmark/requirements.txt
+      - name: Install toolchain
+        # build-essential provides gcc, make and libgomp (OpenMP for gcc); libomp-dev is only for clang.
+        # python3 itself comes from actions/setup-python.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential libopenmpi-dev openmpi-bin
+          python -m pip install -r benchmark/requirements.txt
+      - name: Show toolchain versions
+        run: |
+          gcc --version | head -1
+          mpirun --version | head -1
+          nproc
+      - name: Unit and regression tests
+        run: python -m pytest benchmark/tests -q
+      - name: Smoke benchmark (every model must reproduce the sequential output)
+        run: |
+          python benchmark/run_benchmark.py --smoke --out-dir "$RUNNER_TEMP/smoke"
+          python benchmark/standardize.py --raw "$RUNNER_TEMP/smoke/raw_runs.csv" --out "$RUNNER_TEMP/smoke/benchmark_results.csv"
+      - name: Sanitizer build (AddressSanitizer + UBSan) on the non-MPI binaries
+        run: |
+          for d in merge_sort matrix_multiplication; do
+            make -C "$d" clean
+            make -C "$d" sequential omp thread2 EXTRA_CFLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=undefined"
+          done
+          printf '3\t1\t2\n' > "$RUNNER_TEMP/a.txt"
+          printf '1\t2\n3\t4\n' > "$RUNNER_TEMP/m.txt"
+          for b in seq omp thread2; do
+            merge_sort/bin/$b "$RUNNER_TEMP/a.txt" > /dev/null
+            matrix_multiplication/bin/$b "$RUNNER_TEMP/m.txt" "$RUNNER_TEMP/m.txt" > /dev/null
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-results
+          path: ${{ runner.temp }}/smoke

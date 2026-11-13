@@ -1,0 +1,35 @@
+Third-party notice
+==================
+
+The matrix multiplication scaffold under matrix_multiplication/ (src/matrix.c, src/matrix.h, src/sequential.c, src/omp.c,
+src/thread2.c, src/mpi.c, Makefile, Test-Script.sh, random_float_matrix.py) is adapted from
+https://github.com/mperlet/matrix_multiplication, which is distributed under the MIT License:
+
+    MIT License
+
+    Copyright (c) 2022 Mathias Perlet
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+    documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of
+    the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+    THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+random_float_matrix.py additionally carries the upstream author line "Philipp Böhm" in its header, which is retained.
+
+Modifications made to the upstream files by Namra-5 (2025-2026): Python 3 port of the generator with an optional seed;
+Test-Script.sh rewritten to report failed runs; Makefile (output directory, -ffp-contract=off, shared include path);
+removal of the non-portable <malloc.h>; error messages moved to stderr; input validation in matrix.c (missing final
+newline, truncated or empty files); kernel timing hooks; balanced row partitioning in thread2.c with a configurable
+thread count; row distribution for any MPI rank count in mpi.c. See CHANGELOG.md for details.
+
+Original work in this repository (merge_sort/, common/, the benchmark/ tooling and tests, report and analysis) is
+(c) 2025-2026 Namra Basharat (Namra-5) under the MIT License in LICENSE.

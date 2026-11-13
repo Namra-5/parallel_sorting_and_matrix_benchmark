@@ -1,123 +1,59 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Quick wall-clock timing of the four merge-sort binaries (legacy convenience script).
+#
+# For validated, repeatable measurements (output checked against the sequential
+# result, several repetitions, hardware recorded) use:
+#     python3 ../benchmark/run_benchmark.py --workload mergesort
+#
+# Unlike the original version of this script, a failed run is reported as FAILED
+# instead of being timed: the old `time mpirun ... | grep real` pipeline hid the
+# "not enough slots" error and printed the ~0.07 s a failed launch takes as if it
+# were a result.
+set -u
+cd "$(dirname "$0")" || exit 1
+
+MPI_NP=${MPI_NP:-4}
+SIZES=${SIZES:-"5 10 500 2000 5000 500000"}
+
+cores=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 1)
+mpi_flags=""
+if mpirun --version 2>&1 | grep -qi "open mpi"; then
+    [ "$(id -u)" -eq 0 ] && mpi_flags="$mpi_flags --allow-run-as-root"
+    [ "$MPI_NP" -gt "$cores" ] && mpi_flags="$mpi_flags --oversubscribe"
+fi
+
+# timed <label> <command...>: prints "with <label> <seconds>s" or FAILED (exit code, first stderr line)
+timed() {
+    local label=$1; shift
+    local errf; errf=$(mktemp)
+    local TIMEFORMAT=%R
+    local t rc
+    t=$( { time "$@" >/dev/null 2>"$errf"; echo $? >"$errf.rc"; } 2>&1 )
+    rc=$(cat "$errf.rc")
+    if [ "$rc" -eq 0 ]; then
+        printf 'with %-14s %ss\n' "$label" "$t"
+    else
+        printf 'with %-14s FAILED (exit %s): %s\n' "$label" "$rc" "$(head -n 1 "$errf")"
+    fi
+    rm -f "$errf" "$errf.rc"
+}
+
+mkdir -p bin data
 echo "generate test-arrays with python if no test data found"
-echo
-
-if [ ! -f data/array_5.txt ]; then
-    echo "generate array of size 5..."
-    python3 random_array.py 5 > data/array_5.txt
-fi
-
-if [ ! -f data/array_10.txt ]; then
-    echo "generate array of size 10..."
-    python3 random_array.py 10 > data/array_10.txt
-fi
-
-if [ ! -f data/array_500.txt ]; then
-    echo "generate array of size 500..."
-    python3 random_array.py 500 > data/array_500.txt
-fi
-
-if [ ! -f data/array_2000.txt ]; then
-    echo "generate array of size 2000..."
-    python3 random_array.py 2000 > data/array_2000.txt
-fi
-
-if [ ! -f data/array_5000.txt ]; then
-    echo "generate array of size 5000..."
-    python3 random_array.py 5000 > data/array_5000.txt
-fi
-
-if [ ! -f data/array_500000.txt ]; then
-    echo "generate array of size 500000..."
-    python3 random_array.py 500000 > data/array_500000.txt
-fi
+for n in $SIZES; do
+    [ -s "data/array_$n.txt" ] || { echo "generate array of size $n..."; python3 random_array.py "$n" > "data/array_$n.txt"; }
+done
 
 echo "compile..."
-make
+make || exit 1
 echo
 echo "calculate..."
-echo
-
-echo "* * * * * * * Array size 5"
-cal_t=$((time bin/seq data/array_5.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with sequential    $cal_t"
-
-cal_t=$((time bin/omp data/array_5.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with omp           $cal_t"
-
-cal_t=$((time bin/thread2 data/array_5.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with thread2       $cal_t"
-
-cal_t=$((time mpirun -np 4 bin/mpi data/array_5.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with mpi(4p)       $cal_t"
-echo
-
-echo "* * * * * * * Array size 10"
-cal_t=$((time bin/seq data/array_10.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with sequential    $cal_t"
-
-cal_t=$((time bin/omp data/array_10.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with omp           $cal_t"
-
-cal_t=$((time bin/thread2 data/array_10.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with thread2       $cal_t"
-
-cal_t=$((time mpirun -np 4 bin/mpi data/array_10.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with mpi(4p)       $cal_t"
-echo
-
-echo "* * * * * * * Array size 500"
-cal_t=$((time bin/seq data/array_500.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with sequential    $cal_t"
-
-cal_t=$((time bin/omp data/array_500.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with omp           $cal_t"
-
-cal_t=$((time bin/thread2 data/array_500.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with thread2       $cal_t"
-
-cal_t=$((time mpirun -np 4 bin/mpi data/array_500.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with mpi(4p)       $cal_t"
-echo
-
-echo "* * * * * * * Array size 2000"
-cal_t=$((time bin/seq data/array_2000.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with sequential    $cal_t"
-
-cal_t=$((time bin/omp data/array_2000.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with omp           $cal_t"
-
-cal_t=$((time bin/thread2 data/array_2000.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with thread2       $cal_t"
-
-cal_t=$((time mpirun -np 4 bin/mpi data/array_2000.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with mpi(4p)       $cal_t"
-echo
-
-echo "* * * * * * * Array size 5000"
-cal_t=$((time bin/seq data/array_5000.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with sequential    $cal_t"
-
-cal_t=$((time bin/omp data/array_5000.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with omp           $cal_t"
-
-cal_t=$((time bin/thread2 data/array_5000.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with thread2       $cal_t"
-
-cal_t=$((time mpirun -np 4 bin/mpi data/array_5000.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with mpi(4p)       $cal_t"
-echo
-
-echo "* * * * * * * Array size 500000"
-cal_t=$((time bin/seq data/array_500000.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with sequential    $cal_t"
-
-cal_t=$((time bin/omp data/array_500000.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with omp           $cal_t"
-
-cal_t=$((time bin/thread2 data/array_500000.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with thread2       $cal_t"
-
-cal_t=$((time mpirun -np 4 bin/mpi data/array_500000.txt) 2>&1 > /dev/null | grep real | awk '{print $2}')
-echo "with mpi(4p)       $cal_t"
-echo
+for n in $SIZES; do
+    f="data/array_$n.txt"
+    echo
+    echo "* * * * * * * Array size $n"
+    timed sequential bin/seq "$f"
+    timed omp        bin/omp "$f"
+    timed thread2    bin/thread2 "$f"
+    timed "mpi(${MPI_NP}p)" mpirun $mpi_flags -np "$MPI_NP" bin/mpi "$f"
+done

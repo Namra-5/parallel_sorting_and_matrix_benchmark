@@ -1,0 +1,45 @@
+workload,size,model,workers,time_s,speedup_vs_seq,runs,source,flag
+matrix,5×4,sequential,,0.006,1.000,1,"README.md (single run, `time` real)",
+matrix,5×4,omp,,0.014,0.429,1,"README.md (single run, `time` real)",
+matrix,5×4,thread2,,0.007,0.857,1,"README.md (single run, `time` real)",
+matrix,5×4,mpi,4,0.081,0.074,1,"README.md (single run, `time` real)",unverified_mpi: launch status and output were never checked
+matrix,10×10,sequential,,0.004,1.000,1,"README.md (single run, `time` real)",
+matrix,10×10,omp,,0.007,0.571,1,"README.md (single run, `time` real)",
+matrix,10×10,thread2,,0.004,1.000,1,"README.md (single run, `time` real)",
+matrix,10×10,mpi,4,0.079,0.051,1,"README.md (single run, `time` real)",unverified_mpi: launch status and output were never checked
+matrix,500×500,sequential,,1.011,1.000,1,"README.md (single run, `time` real)",
+matrix,500×500,omp,,0.785,1.288,1,"README.md (single run, `time` real)",
+matrix,500×500,thread2,,0.758,1.334,1,"README.md (single run, `time` real)",
+matrix,500×500,mpi,4,0.071,14.239,1,"README.md (single run, `time` real)",implausible_superlinear; unverified_mpi: launch status and output were never checked
+matrix,2000×2000,sequential,,106.573,1.000,1,"README.md (single run, `time` real)",
+matrix,2000×2000,omp,,54.399,1.959,1,"README.md (single run, `time` real)",
+matrix,2000×2000,thread2,,57.713,1.847,1,"README.md (single run, `time` real)",
+matrix,2000×2000,mpi,4,0.094,1133.755,1,"README.md (single run, `time` real)",implausible_superlinear; unverified_mpi: launch status and output were never checked
+matrix,5000×5000,sequential,,2272.786,1.000,1,"README.md (single run, `time` real)",
+matrix,5000×5000,omp,,1368.886,1.660,1,"README.md (single run, `time` real)",
+matrix,5000×5000,thread2,,1189.032,1.911,1,"README.md (single run, `time` real)",
+matrix,5000×5000,mpi,4,0.247,9201.563,1,"README.md (single run, `time` real)",implausible_superlinear; unverified_mpi: launch status and output were never checked
+mergesort,5,sequential,,0.004,1.000,1,"README.md (single run, `time` real)",
+mergesort,5,omp,,0.006,0.667,1,"README.md (single run, `time` real)",
+mergesort,5,thread2,,0.005,0.800,1,"README.md (single run, `time` real)",
+mergesort,5,mpi,4,0.190,0.021,1,"README.md (single run, `time` real)",unverified_mpi: launch status and output were never checked
+mergesort,10,sequential,,0.004,1.000,1,"README.md (single run, `time` real)",
+mergesort,10,omp,,0.015,0.267,1,"README.md (single run, `time` real)",
+mergesort,10,thread2,,0.005,0.800,1,"README.md (single run, `time` real)",
+mergesort,10,mpi,4,0.070,0.057,1,"README.md (single run, `time` real)",unverified_mpi: launch status and output were never checked
+mergesort,500,sequential,,0.004,1.000,1,"README.md (single run, `time` real)",
+mergesort,500,omp,,0.006,0.667,1,"README.md (single run, `time` real)",
+mergesort,500,thread2,,0.004,1.000,1,"README.md (single run, `time` real)",
+mergesort,500,mpi,4,0.071,0.056,1,"README.md (single run, `time` real)",unverified_mpi: launch status and output were never checked
+mergesort,2000,sequential,,0.007,1.000,1,"README.md (single run, `time` real)",
+mergesort,2000,omp,,0.014,0.500,1,"README.md (single run, `time` real)",
+mergesort,2000,thread2,,0.008,0.875,1,"README.md (single run, `time` real)",
+mergesort,2000,mpi,4,0.077,0.091,1,"README.md (single run, `time` real)",unverified_mpi: launch status and output were never checked
+mergesort,5000,sequential,,0.010,1.000,1,"README.md (single run, `time` real)",
+mergesort,5000,omp,,0.011,0.909,1,"README.md (single run, `time` real)",
+mergesort,5000,thread2,,0.008,1.250,1,"README.md (single run, `time` real)",
+mergesort,5000,mpi,4,0.094,0.106,1,"README.md (single run, `time` real)",unverified_mpi: launch status and output were never checked
+mergesort,500000,sequential,,0.327,1.000,1,"README.md (single run, `time` real)",
+mergesort,500000,omp,,0.246,1.329,1,"README.md (single run, `time` real)",
+mergesort,500000,thread2,,0.176,1.858,1,"README.md (single run, `time` real)",
+mergesort,500000,mpi,4,0.061,5.361,1,"README.md (single run, `time` real)",implausible_superlinear; unverified_mpi: launch status and output were never checked

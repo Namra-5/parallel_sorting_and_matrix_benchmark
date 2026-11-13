@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <malloc.h>
 #include <string.h>
 #include "matrix.h"
+#include "bench_common.h"
 
 int main(int argc, char **argv)
 {
     if(argc != 3){
-        printf("ERROR: Please specify only 2 files.\n");
+        fprintf(stderr, "ERROR: Please specify exactly 2 files.\n");
         exit(EXIT_FAILURE);
     }
         
@@ -15,7 +15,7 @@ int main(int argc, char **argv)
     matrix_struct *m_2 = get_matrix_struct(argv[2]);
 
     if(m_1->cols != m_2->rows){
-        printf("ERROR: The number of columns of matrix A must match the number of rows of matrix B.\n");
+        fprintf(stderr, "ERROR: The number of columns of matrix A must match the number of rows of matrix B.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -30,6 +30,7 @@ int main(int argc, char **argv)
 
 
     // calculate the result matrix sequential
+    double bench_t0 = bench_now();
     for (int i = 0; i < result_matrix->rows; i++) {
         for (int j = 0; j < result_matrix->cols; j++) {
             for (int k = 0; k < m_1->cols; k++) {
@@ -39,6 +40,8 @@ int main(int argc, char **argv)
     }
     
     
+    bench_report(bench_now() - bench_t0);
+
     print_matrix(result_matrix);
     
     free_matrix(m_1);

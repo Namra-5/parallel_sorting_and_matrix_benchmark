@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software or dataset, please cite it as below."
+title: "Parallel Sorting and Matrix Multiplication Benchmark: validated scaling of Sequential, OpenMP, Pthreads and MPI"
+type: software
+authors:
+  - family-names: Basharat
+    given-names: Namra
+    affiliation: "National University of Sciences and Technology (NUST), School of Interdisciplinary Engineering & Sciences"
+    # orcid: "https://orcid.org/0000-0000-0000-0000"   # add your ORCID iD here if you have one
+repository-code: "https://github.com/Namra-5/parallel_sorting_and_matrix_benchmark"
+license: MIT
+version: 2.0.0
+date-released: "2026-11-13"
+keywords: [parallel computing, benchmark, OpenMP, MPI, Pthreads, merge sort, matrix multiplication, scaling, reproducibility]
+abstract: >-
+  C implementations of merge sort and dense matrix multiplication in four execution models, with a validating benchmark
+  harness that rejects failed, hung or incorrect runs, separates whole-process from in-program compute time, flags
+  oversubscribed configurations, and records the hardware and software environment for each result.
+references:
+  - type: software
+    title: "matrix_multiplication"
+    authors:
+      - family-names: Perlet
+        given-names: Mathias
+    url: "https://github.com/mperlet/matrix_multiplication"
+    license: MIT
+    year: 2022
