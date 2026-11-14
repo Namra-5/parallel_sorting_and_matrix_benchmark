@@ -112,17 +112,25 @@ def run_hashed(cmd: list[str], env: dict, timeout: float) -> RunResult:
             if len(err) < STDERR_KEEP:
                 err.extend(chunk[: STDERR_KEEP - len(err)])
 
-    threads = [threading.Thread(target=pump_out, daemon=True), threading.Thread(target=pump_err, daemon=True)]
+    done = threading.Event()
+    finished: list[float] = []
+
+    def waiter() -> None:
+        # A blocking wait returns the instant the child exits. Popen.wait(timeout=...) instead polls with sleeps of up
+        # to 50 ms, which inflated and quantised every measured wall time.
+        p.wait()
+        finished.append(time.perf_counter())
+        done.set()
+
+    threads = [threading.Thread(target=f, daemon=True) for f in (pump_out, pump_err, waiter)]
     for t in threads:
         t.start()
     timed_out = False
-    try:
-        p.wait(timeout=timeout)
-    except subprocess.TimeoutExpired:
+    if not done.wait(timeout):
         timed_out = True
         _kill_tree(p)
-        p.wait()
-    wall = time.perf_counter() - t0
+        done.wait()
+    wall = (finished[0] if finished else time.perf_counter()) - t0
     for t in threads:
         t.join(timeout=10)
     text = bytes(err).decode("utf-8", "replace")
@@ -243,7 +251,8 @@ def makefile_flags(wdir: Path) -> str:
                 vals[m.group(1)] = m.group(2).strip()
     except OSError:
         pass
-    return f"{vals.get('TUNE', '')} {vals.get('CFLAGS', '')}".strip()
+    flags = f"{vals.get('TUNE', '')} {vals.get('CFLAGS', '')}"
+    return " ".join(re.sub(r"\$\([^)]*\)", "", flags).split())  # drop unexpanded $(EXTRA_CFLAGS)-style variables
 
 
 def git_state() -> dict:
@@ -377,6 +386,8 @@ def parse_args(argv=None) -> argparse.Namespace:
                     help="worker counts (default: 1, 2, 4, ... up to the physical cores, plus the core count)")
     ap.add_argument("--reps", type=int, default=3)
     ap.add_argument("--timeout", type=float, default=3600.0, help="seconds per run")
+    ap.add_argument("--cooldown", type=float, default=0.0,
+                    help="seconds to sleep between repetitions (laptops throttle thermally during long runs)")
     ap.add_argument("--out-dir", default=None, help="default: benchmark/results (benchmark/results_smoke with --smoke)")
     ap.add_argument("--notes", default="EDIT: bare metal / WSL / VM, power plan or governor, background load.",
                     help="free text stored in hardware_environment.json")
@@ -393,6 +404,8 @@ def parse_args(argv=None) -> argparse.Namespace:
         a.out_dir = str(HERE / ('results_smoke' if a.smoke else 'results'))
     if min(a.matrix_sizes + a.sort_sizes) < 1 or a.reps < 1 or (a.workers and min(a.workers) < 1):
         ap.error("sizes, --reps and --workers must be positive")
+    if a.cooldown < 0:
+        ap.error("--cooldown must not be negative")
     return a
 
 
@@ -452,6 +465,8 @@ def main(argv=None) -> int:
                 ref_sha = None
                 # repetitions are the OUTER loop so slow drift (thermal, background load) hits all models alike
                 for rep in range(1, a.reps + 1):
+                    if rep > 1 and a.cooldown > 0:
+                        time.sleep(a.cooldown)
                     for model, w in plan:
                         cmd, env, over = build_cmd(model, wdir, inputs, w, ctx)
                         r = run_hashed(cmd, env, a.timeout)

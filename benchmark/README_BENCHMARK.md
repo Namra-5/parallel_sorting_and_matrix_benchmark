@@ -51,6 +51,7 @@ Only `ok` rows enter `benchmark_results.csv`.
 | n_runs, n_ok, n_failed, n_mismatch, n_timeout, n_no_reference | repetition accounting |
 | median_s, mean_s, std_s, min_s, max_s | wall time over **valid** runs |
 | kernel_median_s | median in-program time over valid runs |
+| kernel_std_s, kernel_cv | standard deviation and coefficient of variation (std / mean) of the in-program time: a noise indicator, large values (say above 0.15) mean the repetitions disagree |
 | seq_median_s | sequential wall median for the **same workload and size** |
 | speedup_vs_seq, efficiency | `T_seq / T_N`, and that divided by N |
 | speedup_vs_1worker, efficiency_vs_1worker | same model with one worker as baseline |
@@ -64,8 +65,18 @@ OS, CPU model, usable logical CPUs, physical cores, container CPU quota, effecti
 tree was dirty), and the free-text `--notes`. Always publish it next to the results.
 
 ## Reading results correctly
+- **Compare a model with itself.** `speedup_vs_1worker` / `kernel_speedup_vs_1worker` divide by the SAME model's one-worker
+  time. `speedup_vs_seq` divides by the sequential binary, which is a different program (for example the MPI matrix code
+  stores matrices in flat arrays, the others in arrays of row pointers), so it mixes implementation differences with
+  parallelism.
+- **Speedups above N are possible.** Splitting the data into smaller per-worker pieces can make them fit in cache, and short
+  runs are noisy. Check `kernel_cv`, `min_s` and `max_s` before interpreting a value above N (cache behaviour is a hypothesis
+  until it is measured with hardware counters).
+- **Laptops drift.** Thermal throttling and background load change timings during long runs; repetitions are interleaved across
+  models so all models are affected alike, and `--cooldown SECONDS` adds a pause between repetitions.
 - `wall_s` includes serial input parsing, so it caps speedup (Amdahl). Use `kernel_*` columns for the scaling behaviour of
   the algorithm and `wall_*` for end-to-end behaviour.
-- MPI on one node measures process-level parallelism over shared memory, not network scaling. `mpirun` start-up is a
-  fixed cost of several tenths of a second on small machines; it is part of `wall_s` and absent from `kernel_s`.
+- MPI on one node measures process-level parallelism over shared memory, not network scaling. `wall_s` of an MPI run also
+  contains `mpirun` start-up (several tenths of a second) and the forwarding of the program's output through the launcher,
+  which grows with output size; neither is in `kernel_s`. Prefer `kernel_*` columns when comparing MPI with the other models.
 - Hyper-threads do not count as cores: an 8-thread run on a 4-core/8-thread CPU is flagged oversubscribed.
