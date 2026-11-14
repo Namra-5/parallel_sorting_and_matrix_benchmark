@@ -113,13 +113,13 @@ python3 benchmark/run_benchmark.py --smoke --out-dir /tmp/smoke   # ~10 s end-to
 
 ```bash
 python3 benchmark/run_benchmark.py --workload both \
-    --matrix-sizes 500 1000 1500 --sort-sizes 50000 500000 5000000 --workers 1 2 4 --reps 5 \
+    --matrix-sizes 500 1000 1500 --sort-sizes 50000 500000 5000000 --workers 1 2 4 --reps 5 --cooldown 20 \
     --notes "describe the machine: bare metal / WSL2 / VM, power mode, background load"
 python3 benchmark/standardize.py        # -> benchmark/results/benchmark_results.csv
 python3 benchmark/plot_results.py       # -> benchmark/results/*.png
 ```
 
-`--workers` defaults to 1, 2, 4, … up to the physical core count. Outputs (`raw_runs.csv`, `benchmark_results.csv`,
+`--workers` defaults to 1, 2, 4, … up to the physical core count; `--cooldown` pauses between repetitions, which helps on thermally limited laptops. Outputs (`raw_runs.csv`, `benchmark_results.csv`,
 `hardware_environment.json`, `inputs_manifest.json`) are described in [benchmark/README_BENCHMARK.md](benchmark/README_BENCHMARK.md).
 Select only rows with `scaling_valid == True` when making scaling claims.
 

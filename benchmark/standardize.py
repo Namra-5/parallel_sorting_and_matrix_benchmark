@@ -5,6 +5,8 @@ Only runs with status == "ok" (exit code 0 AND output identical to the sequentia
 
   wall time      median over valid repetitions of the whole-process time        -> median_s, mean_s, std_s, min_s, max_s
   kernel time    median over valid repetitions of the in-program compute time   -> kernel_median_s   (may be empty)
+  noise          kernel_std_s and kernel_cv (= std / mean): large values (say > 0.15) mean the repetitions disagree
+                 (thermal throttling, background load) and the configuration should be interpreted with care
 
 Speedup and efficiency, with N = workers:
 
@@ -33,7 +35,7 @@ HERE = Path(__file__).resolve().parent
 KEY = ["workload", "model", "size", "workers", "oversubscribed"]
 REQUIRED = KEY + ["rep", "wall_s", "status"]
 COLUMNS = KEY + ["n_runs", "n_ok", "n_failed", "n_mismatch", "n_timeout", "n_no_reference",
-                 "median_s", "mean_s", "std_s", "min_s", "max_s", "kernel_median_s",
+                 "median_s", "mean_s", "std_s", "min_s", "max_s", "kernel_median_s", "kernel_std_s", "kernel_cv",
                  "seq_median_s", "speedup_vs_seq", "efficiency",
                  "speedup_vs_1worker", "efficiency_vs_1worker",
                  "kernel_speedup_vs_seq", "kernel_efficiency", "kernel_speedup_vs_1worker",
@@ -54,7 +56,8 @@ def standardize(raw: pd.DataFrame) -> pd.DataFrame:
     ok = raw[raw["status"] == "ok"]
     agg = ok.groupby(KEY).agg(median_s=("wall_s", "median"), mean_s=("wall_s", "mean"), std_s=("wall_s", "std"),
                               min_s=("wall_s", "min"), max_s=("wall_s", "max"), n_ok=("wall_s", "count"),
-                              kernel_median_s=("kernel_s", "median"))
+                              kernel_median_s=("kernel_s", "median"), kernel_mean_s=("kernel_s", "mean"),
+                              kernel_std_s=("kernel_s", "std"))
     cnt = raw.groupby(KEY)["status"].agg(
         n_runs="count",
         n_failed=lambda s: int((s == "failed").sum()),
@@ -63,6 +66,7 @@ def standardize(raw: pd.DataFrame) -> pd.DataFrame:
         n_no_reference=lambda s: int((s == "no_reference").sum()))
     out = cnt.join(agg, how="left").reset_index()
     out["n_ok"] = out["n_ok"].fillna(0).astype(int)
+    out["kernel_cv"] = out["kernel_std_s"] / out["kernel_mean_s"]   # run-to-run noise of the in-program time
 
     # baseline 1: the sequential binary, joined on workload + size ONLY
     seq = (out[out["model"] == "seq"][["workload", "size", "median_s", "kernel_median_s"]]

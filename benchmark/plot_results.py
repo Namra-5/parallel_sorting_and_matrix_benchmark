@@ -3,8 +3,9 @@
 
   python benchmark/plot_results.py            # speedup plots from results/benchmark_results.csv
 
-Only rows with scaling_valid == True (valid runs, workers <= physical cores) are drawn. Wall-time and kernel-time
-speedups are written as separate figures, one panel per input size, with the ideal linear speedup as a dashed line.
+Only rows with scaling_valid == True (valid runs, workers <= physical cores) are drawn. Each model is compared with its OWN
+one-worker run (the implementations differ, so a shared sequential baseline would mix code quality with parallelism).
+Wall-time and kernel-time speedups are separate figures, one panel per input size, ideal linear speedup dashed.
 """
 import argparse
 import sys
@@ -26,8 +27,8 @@ def scaling(csv_path: Path, out_dir: Path) -> None:
     if d.empty:
         sys.exit("no scaling_valid rows to plot (all configurations invalid or oversubscribed)")
     for workload in sorted(d["workload"].unique()):
-        for metric, ylabel, fname in (("kernel_speedup_vs_seq", "Speedup vs sequential (kernel time)", "speedup_kernel"),
-                                      ("speedup_vs_seq", "Speedup vs sequential (wall time)", "speedup_wall")):
+        for metric, ylabel, fname in (("kernel_speedup_vs_1worker", "Speedup vs 1 worker of the same model (kernel time)", "speedup_kernel"),
+                                      ("speedup_vs_1worker", "Speedup vs 1 worker of the same model (wall time)", "speedup_wall")):
             w = d[d["workload"] == workload]
             sizes = sorted(w["size"].unique())
             fig, axes = plt.subplots(1, len(sizes), figsize=(5 * len(sizes), 4.2), squeeze=False, sharey=True)
@@ -39,6 +40,7 @@ def scaling(csv_path: Path, out_dir: Path) -> None:
                 mx = s["workers"].max()
                 ax.plot([1, mx], [1, mx], "k--", lw=1, label="ideal")
                 ax.set_title(f"{workload}, n = {size}")
+                ax.set_xticks(sorted(s["workers"].unique()))  # whole worker counts only
                 ax.set_xlabel("workers")
                 ax.grid(alpha=0.25)
             axes[0][0].set_ylabel(ylabel)

@@ -55,6 +55,13 @@ def test_timeout_fires_for_slowly_printing_process():
     assert r.timed_out and time.perf_counter() - t < 10
 
 
+def test_wall_time_is_not_quantised_by_polling():
+    """Regression: Popen.wait(timeout=...) polls in steps up to 50 ms; a 0.17 s process used to be measured as 0.216 s."""
+    walls = [rb.run_hashed(["sleep", "0.17"], {}, 30).wall_s for _ in range(4)]
+    assert min(walls) >= 0.17
+    assert min(walls) < 0.17 + 0.035, f"wall time looks quantised/inflated: {walls}"
+
+
 def test_large_output_does_not_deadlock():
     r = rb.run_hashed([sys.executable, "-c", "import sys; sys.stdout.write('a'*5_000_000); sys.stderr.write('b'*2_000_000)"],
                       {}, 60)
@@ -193,6 +200,25 @@ def test_oversubscribed_rows_are_never_scaling_valid():
         ["matrix", "omp", 8, 8, True, 1, 9.0, None, 0, "a", "ok", ""]])
     o = sd.standardize(df).set_index("workers")
     assert o.loc[8, "status"] == "ok" and not o.loc[8, "scaling_valid"]
+
+
+def test_kernel_noise_columns():
+    df = frame([["matrix", "seq", 100, 1, False, r, 10.0, k, 0, "a", "ok", ""] for r, k in enumerate([1.0, 1.0, 1.0], 1)]
+               + [["matrix", "omp", 100, 1, False, r, 10.0, k, 0, "a", "ok", ""] for r, k in enumerate([1.0, 2.0, 3.0], 1)])
+    o = sd.standardize(df).set_index("model")
+    assert o.loc["seq", "kernel_cv"] == pytest.approx(0.0)
+    assert o.loc["omp", "kernel_std_s"] == pytest.approx(1.0) and o.loc["omp", "kernel_cv"] == pytest.approx(0.5)
+
+
+def test_recorded_compiler_flags_have_no_unexpanded_make_variables():
+    flags = rb.makefile_flags(B.parent / "merge_sort")
+    assert "-O2" in flags and "$(" not in flags
+
+
+def test_cooldown_option_validated():
+    assert rb.parse_args(["--smoke", "--cooldown", "5"]).cooldown == 5.0
+    with pytest.raises(SystemExit):
+        rb.parse_args(["--smoke", "--cooldown", "-1"])
 
 
 def test_old_schema_without_kernel_column_still_works():

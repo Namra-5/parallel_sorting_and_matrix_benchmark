@@ -3,6 +3,8 @@
 ## 2.0.0 — audit and validation release
 
 ### Fixed (correctness)
+- Harness wall-time measurement: `Popen.wait(timeout=...)` polls in steps of up to 50 ms, so every `wall_s` was inflated by 0-50 ms and quantised (a 0.17 s process was measured as 0.216 s). Replaced by a blocking waiter thread; regression test added. `kernel_s` was never affected.
+- Recorded compiler flags no longer contain the unexpanded `$(EXTRA_CFLAGS)` Make variable.
 - CI on Ubuntu 26 (Open MPI 5, where `mpirun` is PRRTE's `prterun` and never prints "Open MPI"): the harness did not recognise the launcher, added no oversubscribe flag, and `mpirun -np 3` failed with "not enough slots". Flags are now probed, not inferred from version text; regression-tested with fake launchers and verified against Open MPI 4.1.6 and 5.0.11.
 - `merge_sort/src/mpi.c`: wrong output with exit code 0 when n % ranks != 0 → `MPI_Scatterv`/`Gatherv` (any n, any ranks).
 - `merge_sort/src/omp.c`: nested `parallel sections` ran on one thread (default `max-active-levels = 1`) → tasks with cut-off.
@@ -13,6 +15,7 @@
 - `Test-Script.sh` (both): failed runs are reported as FAILED instead of being timed.
 
 ### Added
+- `kernel_std_s` and `kernel_cv` (run-to-run noise) in `benchmark_results.csv`; `--cooldown SECONDS` between repetitions; speedup plots now compare each model with its own one-worker run.
 - `common/bench_common.h` (kernel timer, `BENCH_THREADS`), `merge_sort/src/msort.[ch]` (one shared sorting kernel).
 - Harness: MPI launch flags found by probing `mpirun` with a trivial oversubscribed launch (works for Open MPI 4, Open MPI 5 / PRRTE, and degrades cleanly for MPICH), effective-core detection (affinity, SMT, cgroup quota), `oversubscribed` flag
   for every model, `kernel_s`, incremental `raw_runs.csv`, input manifest, git/compiler/MPI/hardware record, exit code 1 on invalid runs.
