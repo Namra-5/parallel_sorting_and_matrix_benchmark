@@ -40,7 +40,7 @@ jobs:
         run: python -m pytest benchmark/tests -q
       - name: Smoke benchmark (every model must reproduce the sequential output)
         run: |
-          python benchmark/run_benchmark.py --smoke --out-dir "$RUNNER_TEMP/smoke"
+          python benchmark/run_benchmark.py --smoke --warmup --out-dir "$RUNNER_TEMP/smoke"
           python benchmark/standardize.py --raw "$RUNNER_TEMP/smoke/raw_runs.csv" --out "$RUNNER_TEMP/smoke/benchmark_results.csv"
       - name: Sanitizer build (AddressSanitizer + UBSan) on the non-MPI binaries
         run: |

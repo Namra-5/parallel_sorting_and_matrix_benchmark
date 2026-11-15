@@ -210,9 +210,48 @@ def test_kernel_noise_columns():
     assert o.loc["omp", "kernel_std_s"] == pytest.approx(1.0) and o.loc["omp", "kernel_cv"] == pytest.approx(0.5)
 
 
+def test_kernel_range_columns():
+    df = frame([["matrix", "omp", 100, 1, False, r, 10.0, k, 0, "a", "ok", ""] for r, k in enumerate([1.0, 2.0, 4.0], 1)]
+               + [["matrix", "seq", 100, 1, False, 1, 10.0, 1.0, 0, "a", "ok", ""]])
+    o = sd.standardize(df).set_index("model")
+    assert o.loc["omp", "kernel_min_s"] == 1.0 and o.loc["omp", "kernel_max_s"] == 4.0 and o.loc["omp", "kernel_median_s"] == 2.0
+
+
+def test_all_figures_are_written(tmp_path):
+    rows = []
+    for model, w, ks in [("seq", 1, [1.0, 1.1, 0.9]), ("omp", 1, [1.0, 1.2, 0.9]), ("omp", 2, [0.6, 0.55, 0.7])]:
+        rows += [["matrix", model, 100, w, False, r, 10.0, k, 0, "a", "ok", ""] for r, k in enumerate(ks, 1)]
+    csv_path = tmp_path / "res.csv"
+    sd.standardize(frame(rows)).to_csv(csv_path, index=False)
+    spec = importlib.util.spec_from_file_location("plot_results", B / "plot_results.py")
+    pr = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(pr)
+    pr.scaling(csv_path, tmp_path)
+    pr.times(csv_path, tmp_path)
+    for name in ("matrix_speedup_kernel", "matrix_speedup_wall", "matrix_kernel_time"):
+        assert (tmp_path / f"{name}.png").stat().st_size > 1000
+
+
 def test_recorded_compiler_flags_have_no_unexpanded_make_variables():
     flags = rb.makefile_flags(B.parent / "merge_sort")
     assert "-O2" in flags and "$(" not in flags
+
+
+def test_repetition_order_is_a_reproducible_permutation():
+    plan = [("seq", 1)] + [(m, w) for m in ("omp", "thread2", "mpi") for w in (1, 2, 3, 4)]
+    a = rb.repetition_order(plan, "matrix", 500, 1)
+    assert sorted(a) == sorted(plan)                                   # nothing lost or duplicated
+    assert a == rb.repetition_order(plan, "matrix", 500, 1)            # reproducible
+    firsts = {rb.repetition_order(plan, "matrix", 500, rep)[0] for rep in range(1, 41)}
+    assert len(firsts) >= 4, "the configuration that runs first should vary between repetitions"
+    assert rb.repetition_order(plan, "matrix", 500, 1) != rb.repetition_order(plan, "mergesort", 500, 1)
+
+
+def test_new_protocol_flags_validated():
+    a = rb.parse_args(["--smoke", "--warmup", "--sort-reps", "7"])
+    assert a.warmup and a.sort_reps == 7
+    with pytest.raises(SystemExit):
+        rb.parse_args(["--smoke", "--sort-reps", "0"])
 
 
 def test_cooldown_option_validated():

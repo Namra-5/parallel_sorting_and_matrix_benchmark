@@ -15,6 +15,8 @@
 - `Test-Script.sh` (both): failed runs are reported as FAILED instead of being timed.
 
 ### Added
+- Measurement protocol: seeded random run order inside each repetition (`order` column), an untimed sequential reference run per input, optional `--warmup`, `--sort-reps`, and per-run `start_utc` and `load1`; the protocol is stored in `hardware_environment.json` (schema version 3). Motivation: with a fixed order, the first run after a cooldown was measurably slower for millisecond-scale kernels.
+- `kernel_min_s`/`kernel_max_s` columns; redesigned figures (every repetition drawn as a dot, colour-blind-safe palette, distinct markers, plain-number axes, machine named in the subtitle); documentation of the timed region of every program and a field dictionary for `hardware_environment.json`.
 - `kernel_std_s` and `kernel_cv` (run-to-run noise) in `benchmark_results.csv`; `--cooldown SECONDS` between repetitions; speedup plots now compare each model with its own one-worker run.
 - `common/bench_common.h` (kernel timer, `BENCH_THREADS`), `merge_sort/src/msort.[ch]` (one shared sorting kernel).
 - Harness: MPI launch flags found by probing `mpirun` with a trivial oversubscribed launch (works for Open MPI 4, Open MPI 5 / PRRTE, and degrades cleanly for MPICH), effective-core detection (affinity, SMT, cgroup quota), `oversubscribed` flag
