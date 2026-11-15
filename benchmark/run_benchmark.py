@@ -21,6 +21,10 @@ Two times are recorded per run:
   kernel_s  measured inside the program (BENCH_TIMING=1): the computation only (for MPI: scatter/compute/gather/merge)
 Both are kept; wall_s is what `time` measured before, kernel_s is the clean scaling signal.
 
+Protocol per (workload, size): one untimed sequential run defines the expected output hash; then every repetition runs all
+configurations once in a seeded random order (recorded as `order`), optionally preceded by an untimed warm-up (--warmup) and
+separated by a cooldown (--cooldown). --sort-reps gives the cheap sorting workload more repetitions than the matrices.
+
 Oversubscription: a configuration with more workers than usable *physical* cores is flagged `oversubscribed=True`. It is
 still run (and mpirun is given whichever oversubscribe flag it was found to accept, so the launch does not fail) but standardize.py never treats it as a
 valid scaling data point.
@@ -35,6 +39,7 @@ import json
 import math
 import os
 import platform
+import random
 import re
 import shutil
 import signal
@@ -48,9 +53,9 @@ from typing import NamedTuple, Optional
 ROOT = Path(__file__).resolve().parent.parent
 HERE = Path(__file__).resolve().parent
 SEED = 20260101
-SCHEMA_VERSION = 2
-RAW_FIELDS = ["workload", "model", "size", "workers", "oversubscribed", "rep", "wall_s", "kernel_s", "exit_code",
-              "output_sha256_16", "status", "stderr_head"]
+SCHEMA_VERSION = 3
+RAW_FIELDS = ["workload", "model", "size", "workers", "oversubscribed", "rep", "order", "start_utc", "load1", "wall_s",
+              "kernel_s", "exit_code", "output_sha256_16", "status", "stderr_head"]
 KERNEL_RE = re.compile(r"^BENCH_KERNEL_S=([0-9.eE+-]+)\s*$", re.MULTILINE)
 STDERR_KEEP = 64 * 1024  # bytes of stderr kept per run (the rest is drained and dropped)
 
@@ -263,7 +268,7 @@ def git_state() -> dict:
     return {"commit": head, "dirty": dirty}
 
 
-def hardware(ctx: dict, notes: str) -> dict:
+def hardware(ctx: dict, notes: str, protocol: dict) -> dict:
     lscpu = {}
     for line in _out(["lscpu"]).splitlines():
         if ":" in line:
@@ -295,7 +300,7 @@ def hardware(ctx: dict, notes: str) -> dict:
         "mpi_launch_flags": {"root": ctx.get("mpi_root"), "oversubscribe": ctx.get("mpi_oversub")},
         "cflags_matrix": makefile_flags(ROOT / "matrix_multiplication"),
         "cflags_mergesort": makefile_flags(ROOT / "merge_sort"),
-        "data_seed": SEED, "git": git_state(), "notes": notes,
+        "data_seed": SEED, "protocol": protocol, "git": git_state(), "notes": notes,
     }
 
 
@@ -367,6 +372,18 @@ def build_cmd(model: str, wdir: Path, inputs: list[str], workers: int, ctx: dict
     return [binary, *inputs], env, False
 
 
+def repetition_order(plan: list, workload: str, n: int, rep: int) -> list:
+    """Randomised, reproducible execution order of the configurations within one repetition.
+
+    A fixed order makes the first configuration after an idle pause (cooldown) systematically slower for millisecond-scale
+    runs (CPU wake-up, cold caches), which would bias whichever configuration is always first. Shuffling spreads such order
+    effects randomly; the seed depends only on the data seed, workload, size and repetition, so the order is reproducible
+    and the position actually used is recorded in raw_runs.csv (`order`)."""
+    order = list(plan)
+    random.Random(f"{SEED}|{workload}|{n}|{rep}").shuffle(order)
+    return order
+
+
 def default_workers(cores: int) -> list[int]:
     w = [1]
     while w[-1] * 2 <= cores:
@@ -385,9 +402,15 @@ def parse_args(argv=None) -> argparse.Namespace:
     ap.add_argument("--workers", type=int, nargs="+", default=None,
                     help="worker counts (default: 1, 2, 4, ... up to the physical cores, plus the core count)")
     ap.add_argument("--reps", type=int, default=3)
+    ap.add_argument("--sort-reps", type=int, default=None,
+                    help="repetitions for merge sort only (default: --reps); the sorts are cheap, so more repetitions "
+                         "tighten the millisecond-scale medians")
     ap.add_argument("--timeout", type=float, default=3600.0, help="seconds per run")
     ap.add_argument("--cooldown", type=float, default=0.0,
                     help="seconds to sleep between repetitions (laptops throttle thermally during long runs)")
+    ap.add_argument("--warmup", action="store_true",
+                    help="run the first scheduled configuration once, untimed, before every repetition (wakes the CPU "
+                         "after a cooldown)")
     ap.add_argument("--out-dir", default=None, help="default: benchmark/results (benchmark/results_smoke with --smoke)")
     ap.add_argument("--notes", default="EDIT: bare metal / WSL / VM, power plan or governor, background load.",
                     help="free text stored in hardware_environment.json")
@@ -406,6 +429,8 @@ def parse_args(argv=None) -> argparse.Namespace:
         ap.error("sizes, --reps and --workers must be positive")
     if a.cooldown < 0:
         ap.error("--cooldown must not be negative")
+    if a.sort_reps is not None and a.sort_reps < 1:
+        ap.error("--sort-reps must be positive")
     return a
 
 
@@ -432,7 +457,10 @@ def main(argv=None) -> int:
     out.mkdir(parents=True, exist_ok=True)
     data = HERE / "data"
     data.mkdir(exist_ok=True)
-    (out / "hardware_environment.json").write_text(json.dumps(hardware(ctx, a.notes), indent=2))
+    protocol = {"workers": workers, "reps": a.reps, "sort_reps": a.sort_reps or a.reps, "cooldown_s": a.cooldown,
+                "warmup": a.warmup, "order": "randomised within each repetition (seeded, recorded as `order`)",
+                "reference_run": "one untimed sequential run per input defines the expected output hash"}
+    (out / "hardware_environment.json").write_text(json.dumps(hardware(ctx, a.notes, protocol), indent=2))
     print(f"effective cores: {ctx['cores']} (physical {ctx['physical']}, usable logical {ctx['logical']}); "
           f"workers: {workers}; MPI: {ctx['flavor']} (oversubscribe flag: {ctx.get('mpi_oversub')})", flush=True)
 
@@ -462,34 +490,48 @@ def main(argv=None) -> int:
                     manifest[pth.name] = {"bytes": pth.stat().st_size, "sha256": sha256_file(pth)}
                 inputs = [str(pth) for pth in paths]
                 plan = [("seq", 1)] + [(m, w) for m in ("omp", "thread2", "mpi") if m in models for w in workers]
-                ref_sha = None
-                # repetitions are the OUTER loop so slow drift (thermal, background load) hits all models alike
-                for rep in range(1, a.reps + 1):
+                nreps = a.sort_reps if (workload == "mergesort" and a.sort_reps) else a.reps
+                # one untimed sequential run defines the expected output hash (and warms the CPU and the page cache)
+                cmd, env, _ = build_cmd("seq", wdir, inputs, 1, ctx)
+                ref = run_hashed(cmd, env, a.timeout)
+                ref_sha = ref.sha16 if (ref.exit_code == 0 and not ref.timed_out) else None
+                if ref_sha is None:
+                    print(f"WARNING: reference run failed for {workload} n={n}: all its runs will be 'no_reference'",
+                          file=sys.stderr)
+                # repetitions are the OUTER loop and the order inside each is shuffled (see repetition_order)
+                for rep in range(1, nreps + 1):
                     if rep > 1 and a.cooldown > 0:
                         time.sleep(a.cooldown)
-                    for model, w in plan:
+                    order = repetition_order(plan, workload, n, rep)
+                    if a.warmup:
+                        cmd, env, _ = build_cmd(order[0][0], wdir, inputs, order[0][1], ctx)
+                        run_hashed(cmd, env, a.timeout)
+                    for pos, (model, w) in enumerate(order, 1):
                         cmd, env, over = build_cmd(model, wdir, inputs, w, ctx)
+                        load1 = f"{os.getloadavg()[0]:.2f}" if hasattr(os, "getloadavg") else ""
+                        started = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
                         r = run_hashed(cmd, env, a.timeout)
-                        if model == "seq" and r.exit_code == 0 and not r.timed_out and ref_sha is None:
-                            ref_sha = r.sha16
                         status = classify(r.exit_code, r.sha16, ref_sha, r.timed_out)
-                        row = [workload, model, n, w, over, rep, f"{r.wall_s:.6f}",
-                               "" if r.kernel_s is None else f"{r.kernel_s:.9f}", r.exit_code, r.sha16, status,
-                               r.stderr]
-                        writer.writerow(row)
+                        row = {"workload": workload, "model": model, "size": n, "workers": w, "oversubscribed": over,
+                               "rep": rep, "order": pos, "start_utc": started, "load1": load1,
+                               "wall_s": f"{r.wall_s:.6f}", "kernel_s": "" if r.kernel_s is None else f"{r.kernel_s:.9f}",
+                               "exit_code": r.exit_code, "output_sha256_16": r.sha16, "status": status,
+                               "stderr_head": r.stderr}
+                        writer.writerow([row[k] for k in RAW_FIELDS])
                         fh.flush()  # a crash or Ctrl-C in a multi-hour run keeps everything measured so far
                         n_rows += 1
                         if status != "ok":
                             bad.append(row)
                         ktxt = "-" if r.kernel_s is None else f"{r.kernel_s:.4f}s"
-                        print(f"{workload:9s} n={n:<7d} {model:8s} w={w:<3d}{'*' if over else ' '} rep={rep} "
-                              f"wall={r.wall_s:9.3f}s kernel={ktxt:>10s} exit={r.exit_code} {status}", flush=True)
+                        print(f"{workload:9s} n={n:<7d} {model:8s} w={w:<3d}{'*' if over else ' '} rep={rep}/{nreps} "
+                              f"#{pos:<2d} wall={r.wall_s:9.3f}s kernel={ktxt:>10s} exit={r.exit_code} {status}", flush=True)
     (out / "inputs_manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True))
     print(f"\n{n_rows} runs, {len(bad)} NOT ok -> {out / 'raw_runs.csv'}   (* = oversubscribed: more workers than cores)")
     if bad:
         print("Non-ok runs are excluded from speedup statistics; status and stderr are in raw_runs.csv.")
         for r in bad[:10]:
-            print(f"  {r[0]} {r[1]} n={r[2]} w={r[3]} -> {r[10]} (exit {r[8]}): {r[11][:100]}")
+            print(f"  {r['workload']} {r['model']} n={r['size']} w={r['workers']} -> {r['status']} "
+                  f"(exit {r['exit_code']}): {r['stderr_head'][:100]}")
     return 1 if (bad and not a.allow_failures) else 0
 
 

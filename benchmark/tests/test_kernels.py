@@ -161,3 +161,19 @@ def test_omp_merge_sort_really_uses_several_threads(sort_models, tmp_path):
         if len(seen) >= 2:
             break
     assert len(seen) >= 2, "all leaf sorts ran on one thread in 5 attempts: the OpenMP sort is not parallel"
+
+
+def test_smoke_run_end_to_end_records_protocol(tmp_path):
+    """The whole pipeline: build, reference run, randomised order, warm-up, validation, records."""
+    import csv
+    import json
+    out = tmp_path / "smoke"
+    assert rb.main(["--smoke", "--warmup", "--out-dir", str(out)]) == 0
+    rows = list(csv.DictReader((out / "raw_runs.csv").open()))
+    assert rows and {"order", "start_utc", "load1"} <= set(rows[0])
+    assert all(r["status"] == "ok" for r in rows)
+    for workload in {r["workload"] for r in rows}:                    # inside a repetition the order is a permutation 1..N
+        sub = [r for r in rows if r["workload"] == workload]
+        assert sorted(int(r["order"]) for r in sub) == list(range(1, len(sub) + 1))
+    hw = json.loads((out / "hardware_environment.json").read_text())
+    assert hw["schema_version"] == 3 and hw["protocol"]["warmup"] is True and "randomised" in hw["protocol"]["order"]

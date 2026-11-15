@@ -113,7 +113,8 @@ python3 benchmark/run_benchmark.py --smoke --out-dir /tmp/smoke   # ~10 s end-to
 
 ```bash
 python3 benchmark/run_benchmark.py --workload both \
-    --matrix-sizes 500 1000 1500 --sort-sizes 50000 500000 5000000 --workers 1 2 4 --reps 5 --cooldown 20 \
+    --matrix-sizes 500 1000 1500 --sort-sizes 50000 500000 5000000 \
+    --reps 5 --sort-reps 15 --cooldown 20 --warmup \
     --notes "describe the machine: bare metal / WSL2 / VM, power mode, background load"
 python3 benchmark/standardize.py        # -> benchmark/results/benchmark_results.csv
 python3 benchmark/plot_results.py       # -> benchmark/results/*.png
@@ -133,7 +134,7 @@ Select only rows with `scaling_valid == True` when making scaling claims.
   the scaling signal.
 - **Speedup / efficiency.** `S_N = T_seq / T_N` against the true sequential binary on the same workload and size;
   `E_N = S_N / N`. `speedup_vs_1worker` uses the same model with one worker. Medians over valid repetitions.
-- **Run order.** Repetitions are the outer loop so slow drift (thermal, background load) affects all models alike.
+- **Run order and warm-up.** Repetitions are the outer loop and the order of the configurations inside each repetition is shuffled (seeded, recorded as `order`), so slow drift (thermal, background load) and the slower first run after an idle pause do not systematically favour any model. An untimed sequential reference run per input defines the expected output hash; optional `--warmup` and `--cooldown` further stabilise laptops.
 - **Compiler.** `-O2 -Wall -std=gnu99 -g -fopenmp -ffp-contract=off` for every model; no model-specific tuning.
 - **Known simplification.** The matrix kernel keeps the textbook `i-j-k` loop order (inherited from the upstream
   scaffold), which is cache-unfriendly; absolute times are therefore much slower than a tuned BLAS. All models share it,
