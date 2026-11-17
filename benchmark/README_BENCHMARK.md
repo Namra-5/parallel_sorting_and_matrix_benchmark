@@ -15,6 +15,7 @@ python benchmark/run_benchmark.py --workload both --matrix-sizes 500 1000 1500 -
        --notes "bare metal, Ubuntu 24.04, performance governor, idle machine"
 python benchmark/standardize.py
 python benchmark/plot_results.py
+python benchmark/results_table.py --update-readme   # regenerate the README results block from the data
 ```
 Use `--workers 1 2 4 8` to choose worker counts (default: powers of two up to the physical cores, plus the core count).
 The 5000×5000 matrix takes ≈ 38 min sequentially on the original machine; run it deliberately
@@ -42,7 +43,7 @@ Only `ok` rows enter `benchmark_results.csv`.
 | oversubscribed | workers > effective cores (physical cores, capped by affinity and container CPU quota) |
 | rep | repetition number |
 | order | position of this run inside its repetition (1 = first); the order is shuffled with a seed, see the protocol below |
-| start_utc, load1 | UTC start time of the run and the 1-minute load average just before it (background-load indicator) |
+| start_utc, load1 | UTC start time of the run and the 1-minute load average just before it; it includes the load of the benchmark's own preceding runs (up to the worker count), so it cannot by itself prove that the machine was idle |
 | wall_s | whole-process seconds (includes `mpirun` start-up, input parsing, printing) |
 | kernel_s | in-program seconds (computation only; MPI also scatter/gather/merge); empty if unavailable |
 | exit_code, output_sha256_16, status, stderr_head | validation data (first 16 hex chars of SHA-256; first 160 chars of stderr) |
@@ -54,6 +55,7 @@ Only `ok` rows enter `benchmark_results.csv`.
 | n_runs, n_ok, n_failed, n_mismatch, n_timeout, n_no_reference | repetition accounting |
 | median_s, mean_s, std_s, min_s, max_s | wall time over **valid** runs |
 | kernel_median_s | median in-program time over valid runs |
+| kernel_speedup_vs_1worker_lo, kernel_speedup_vs_1worker_hi | conservative, distribution-free interval of `kernel_speedup_vs_1worker` (empty for one worker, the sequential program, or fewer than 5 repetitions): each median gets its exact order-statistic interval (the sample range for 5 repetitions, 93.8%; [x(4), x(12)] for 15, 96.5%) and the ratio bounds are lo₁/hi_N and hi₁/lo_N, so the interval covers the ratio of the true medians with probability of at least 87.5% (5 + 5 repetitions) or 93% (15 + 15) if the repetitions are independent |
 | kernel_min_s, kernel_max_s | smallest and largest in-program time over the valid runs (the range drawn in the kernel-time figures) |
 | kernel_std_s, kernel_cv | standard deviation and coefficient of variation (std / mean) of the in-program time: a noise indicator, large values (say above 0.15) mean the repetitions disagree |
 | seq_median_s | sequential wall median for the **same workload and size** |
@@ -87,7 +89,8 @@ Only `ok` rows enter `benchmark_results.csv`.
 | git | `commit` and `dirty` (whether tracked files had uncommitted changes) of the code that ran |
 | notes | free text given with `--notes` |
 
-Always publish this file next to the results.
+Always publish this file next to the results. Raw tool excerpts that the harness does not record (cache sizes,
+virtualisation) are stored next to the results as `lscpu_excerpt.txt` and `python_packages.txt`.
 
 ## Measurement protocol
 

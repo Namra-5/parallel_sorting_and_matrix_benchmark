@@ -1,0 +1,38 @@
+{
+  "array_50000.txt": {
+    "bytes": 244312,
+    "sha256": "78292733dde0e1b65313b777c68e9df24c631c2185abbf785961e60b4c076505"
+  },
+  "array_500000.txt": {
+    "bytes": 2444869,
+    "sha256": "a0f93ddd7c2b38e38af017e786ff49a8ab846a4663341b3d03deb5fbf1faf140"
+  },
+  "array_5000000.txt": {
+    "bytes": 24446587,
+    "sha256": "a8b0f39a3527d535896b191ae11ccd7ce2b4c61b1a5ee2dae63e008e3a3408f4"
+  },
+  "mat_1000_a.txt": {
+    "bytes": 18155462,
+    "sha256": "30f03bec27147ef46bb1524346153b9fa5394638a2d24c7084d9e9edaf0fce04"
+  },
+  "mat_1000_b.txt": {
+    "bytes": 18154992,
+    "sha256": "48bd880a471252828db176ffd55d06f8066bde313b6b54da761b94cfe5834a5a"
+  },
+  "mat_1500_a.txt": {
+    "bytes": 40849140,
+    "sha256": "243197aeed56af2b372c6d1b5414e8082439ddc75b251e2c44f12bd4b0e86879"
+  },
+  "mat_1500_b.txt": {
+    "bytes": 40849530,
+    "sha256": "10081035a3caebddb5472e7f7a2d01fa1d82179284edbe802dd6b4bd114a09d6"
+  },
+  "mat_500_a.txt": {
+    "bytes": 4538365,
+    "sha256": "3926748aba7d8fe03478b6cc2c1425753d4182a5d5604982b0e655f67694ee4f"
+  },
+  "mat_500_b.txt": {
+    "bytes": 4538800,
+    "sha256": "7520461707002077694d817aac39c9090b72bc9fc7068c66f32d9db89a489a50"
+  }
+}

@@ -37,6 +37,11 @@ are to that commit.
   binaries were also run under them during development with no findings.
 - **Timeouts.** The harness drains stdout and stderr in reader threads and enforces the timeout with a process-group kill,
   so a silent hang (for example an MPI deadlock) cannot block a benchmark; a regression test covers it.
+- **Protocol.** Seeded random run order inside each repetition, an untimed reference run, optional warm-up and cooldown, and
+  per-run start time and load average are recorded, so order and drift effects can be checked in the data.
+- **Generated results.** The numbers in the README results block are produced by `benchmark/results_table.py`; a test fails if the
+  README and the dataset disagree, and the script refuses to claim that all runs are validated if any run is not `ok` or a
+  repetition is missing.
 - **Environment capture.** CPU, physical/logical/effective cores, container CPU quota, OS, compiler and MPI versions,
   compiler flags (parsed from the Makefiles), data seed, input hashes, git commit and a free-text note are stored with every
   result set.
@@ -53,7 +58,25 @@ reproduced locally with Open MPI 5.0.11 behind a `prterun` wrapper. The fix repl
 launches a trivial program oversubscribed and keeps the first flag spelling that works without warnings. Unit tests use
 fake launchers for the three behaviours (classic flag, PRRTE-style, no flag understood).
 
-## 5. Known limitations and residual risks
+## 5. Incidents in the measurement protocol itself
+
+Two flaws were found by reading the first full measurement runs critically, before any result was published.
+
+**Wall times on a 50 ms grid.** The measured wall times clustered on a 0.05 s grid (0.818, 0.868, 0.919, … s). Python's
+`Popen.wait(timeout=…)` polls with sleeps of up to 50 ms, so every `wall_s` was inflated by 0–50 ms (a controlled test measured a
+0.17 s process as 0.216 s). Large matrix runs were barely affected; the sorts and the 500×500 matrix were. `kernel_s`, measured
+inside the programs, was unaffected. The harness now waits in a blocking thread, and a regression test fails on the old behaviour.
+
+**A fixed run order biased the baseline.** Every repetition started with the sequential program, immediately after the cooldown.
+For millisecond-scale kernels the first run after an idle pause is slower (CPU wake-up, cold caches): in that run the sequential
+kernel at 50,000 elements was 63% above the identical algorithm run as a one-thread OpenMP program one slot later, while there
+was no such effect at 50 ms and above. The protocol now (a) runs one untimed sequential reference run per input, (b) shuffles the
+order of the configurations inside every repetition with a fixed seed and records the position (`order`), (c) offers an untimed
+warm-up before each repetition, (d) records the start time and the machine load of every run, and (e) uses more repetitions for the
+cheap sorts. After this change the sequential and one-worker OpenMP/Pthreads kernels agree (the generated README block reports
+the range).
+
+## 6. Known limitations and residual risks
 
 1. The matrix kernel keeps the cache-unfriendly `i-j-k` loop order of the upstream scaffold. A different order (for example
    `i-k-j`, which preserves each element's summation order) would be much faster but would change the baseline; it is
