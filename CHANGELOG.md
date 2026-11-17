@@ -15,6 +15,8 @@
 - `Test-Script.sh` (both): failed runs are reported as FAILED instead of being timed.
 
 ### Added
+- Conservative, distribution-free intervals for the kernel speedup (`kernel_speedup_vs_1worker_lo`/`_hi`, from order statistics of the repetitions) in the results table, the README table and the speedup figures; figures use jittered dots; the wall-time figure no longer shows the dominating ideal line.
+- `benchmark/results_table.py`: generates the README results block (tables and key numbers) from the dataset and checks it (test `test_readme_results_block_matches_the_committed_dataset`); refuses to claim all runs validated unless every run is `ok` and none is missing. All-workers kernel-time figures with the oversubscribed region shaded. Dataset card `benchmark/results/README.md`.
 - Measurement protocol: seeded random run order inside each repetition (`order` column), an untimed sequential reference run per input, optional `--warmup`, `--sort-reps`, and per-run `start_utc` and `load1`; the protocol is stored in `hardware_environment.json` (schema version 3). Motivation: with a fixed order, the first run after a cooldown was measurably slower for millisecond-scale kernels.
 - `kernel_min_s`/`kernel_max_s` columns; redesigned figures (every repetition drawn as a dot, colour-blind-safe palette, distinct markers, plain-number axes, machine named in the subtitle); documentation of the timed region of every program and a field dictionary for `hardware_environment.json`.
 - `kernel_std_s` and `kernel_cv` (run-to-run noise) in `benchmark_results.csv`; `--cooldown SECONDS` between repetitions; speedup plots now compare each model with its own one-worker run.

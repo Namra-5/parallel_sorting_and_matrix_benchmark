@@ -8,6 +8,7 @@ Only rows with scaling_valid == True (valid runs, workers <= physical cores) are
   <workload>_speedup_kernel.png   speedup of the in-program compute time, each model against ITS OWN one-worker run
   <workload>_speedup_wall.png     the same for whole-process time
   <workload>_kernel_time.png      absolute kernel time: every valid repetition as a dot, the median as a marker
+  <workload>_kernel_time_all_workers.png   the same including the oversubscribed (hyper-thread) worker counts, shaded
 
 Each model is compared with its own one-worker run because the implementations differ (a shared sequential baseline would
 mix code quality with parallelism). One panel per input size; the ideal linear speedup is dashed. The subtitle names the
@@ -22,6 +23,7 @@ from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from matplotlib.ticker import FuncFormatter
 
@@ -74,29 +76,55 @@ def scaling(csv_path: Path, out_dir: Path) -> None:
             w = d[d["workload"] == workload]
             sizes = sorted(w["size"].unique())
             fig, axes = plt.subplots(1, len(sizes), figsize=(4.6 * len(sizes), 4.2), squeeze=False, sharey=True)
+            # shared axis limits, computed once for the whole workload: the axis stops near the ideal speedup and longer
+            # interval bars are clipped (marked with a triangle)
+            ymax = float(w["workers"].max()) * 1.15
+            lows_all = w["kernel_speedup_vs_1worker_lo"].dropna() if "kernel_speedup_vs_1worker_lo" in w else []
+            ymin = max(0.4, min([0.95] + list(lows_all)) - 0.05)
             for ax, size in zip(axes[0], sizes):
                 s = w[w["size"] == size]
                 top = float(s["workers"].max())
-                ax.plot([1, top], [1, top], "k--", lw=1, label="ideal", zorder=1)
-                for model in models_in(s, with_seq=False):
+                if metric == "kernel_speedup_vs_1worker":
+                    ax.plot([1, top], [1, top], "k--", lw=1, label="ideal", zorder=1)
+                models = models_in(s, with_seq=False)
+                for i, model in enumerate(models):
                     g = s[s["model"] == model].sort_values("workers")
-                    ax.plot(g["workers"], g[metric], marker=MARKERS[model], ms=7, lw=1.8, color=COLORS[model],
+                    xs = g["workers"] + (i - (len(models) - 1) / 2) * 0.05      # small offset so the bars do not overlap
+                    if metric == "kernel_speedup_vs_1worker" and "kernel_speedup_vs_1worker_lo" in g:
+                        lo = (g[metric] - g["kernel_speedup_vs_1worker_lo"]).clip(lower=0).fillna(0)
+                        hi = (g["kernel_speedup_vs_1worker_hi"] - g[metric]).clip(lower=0).fillna(0)
+                        ax.errorbar(xs, g[metric], yerr=[lo, hi], fmt="none", ecolor=COLORS[model], capsize=3,
+                                    alpha=0.8, zorder=2)
+                    ax.plot(xs, g[metric], marker=MARKERS[model], ms=7, lw=1.8, color=COLORS[model],
                             label=LABELS[model], zorder=3)
+                    if metric == "kernel_speedup_vs_1worker" and "kernel_speedup_vs_1worker_hi" in g:
+                        cut = g[g["kernel_speedup_vs_1worker_hi"] > ymax]       # interval continues above the axis
+                        ax.plot(xs[cut.index], [ymax - 0.03] * len(cut), linestyle="none", marker="^", ms=5,
+                                color=COLORS[model], zorder=4)
                 ax.set_xticks(sorted(s["workers"].unique()))
-                ax.set_xlim(0.85, top + 0.15)
+                ax.set_xlim(0.8, top + 0.2)
                 ax.set_title(size_label(workload, size), fontsize=11)
                 ax.set_xlabel("workers")
                 ax.grid(alpha=0.25)
                 if metric == "speedup_vs_1worker":
-                    ax.set_ylim(0.9, top + 0.1)
-            finish(fig, axes, ylabel, f"{WORKLOADS.get(workload, workload)}: speedup of the {what}", sub,
+                    ax.set_ylim(0.95, max(1.5, float(s[metric].max()) + 0.1))
+                else:
+                    ax.set_ylim(ymin, ymax)
+            note = ("bars: conservative interval from the repetitions, ▲ = continues above the axis; dashed: ideal"
+                    if metric == "kernel_speedup_vs_1worker" else "the ideal speedup would equal the worker count")
+            finish(fig, axes, ylabel, f"{WORKLOADS.get(workload, workload)}: speedup of the {what} ({note})", sub,
                    out_dir / f"{workload}_{fname}.png")
 
 
-def times(csv_path: Path, out_dir: Path, raw_path: Path = None) -> None:
-    """Absolute kernel time: all valid repetitions as dots (if raw_runs.csv is available), median as a marker."""
+def times(csv_path: Path, out_dir: Path, raw_path: Path = None, all_workers: bool = False) -> None:
+    """Absolute kernel time: all valid repetitions as dots (if raw_runs.csv is available), median as a marker.
+
+    With all_workers=True the oversubscribed configurations (more workers than physical cores, i.e. hyper-threads) are
+    included and that region is shaded; they are shown for completeness and are not scaling claims."""
     df = pd.read_csv(csv_path)
-    d = df[df["scaling_valid"] & df["kernel_median_s"].notna()]
+    d = df[(df["status"] != "INVALID") if all_workers else df["scaling_valid"]]
+    d = d[d["kernel_median_s"].notna()]
+    cores = int(df[~df["oversubscribed"] & (df["model"] != "seq")]["workers"].max()) if all_workers else None
     raw = None
     raw_path = raw_path or csv_path.parent / "raw_runs.csv"
     if raw_path.exists():
@@ -123,8 +151,9 @@ def times(csv_path: Path, out_dir: Path, raw_path: Path = None) -> None:
                 if raw is not None:
                     r = raw[(raw["workload"] == workload) & (raw["model"] == model) & (raw["size"] == size)
                             & raw["workers"].isin(g["workers"])]
-                    ax.scatter([x + dx for x in r["workers"]], r["kernel_s"], s=14, color=COLORS[model], alpha=0.35,
-                               linewidths=0, zorder=2)
+                    jitter = np.random.RandomState(0).uniform(-0.035, 0.035, len(r))   # fixed seed: reproducible figure
+                    ax.scatter([x + dx for x in r["workers"]] + jitter, r["kernel_s"], s=18, color=COLORS[model],
+                               alpha=0.55, linewidths=0, zorder=2)
                 else:
                     lo = (g["kernel_median_s"] - g["kernel_min_s"]).clip(lower=0)
                     hi = (g["kernel_max_s"] - g["kernel_median_s"]).clip(lower=0)
@@ -136,12 +165,17 @@ def times(csv_path: Path, out_dir: Path, raw_path: Path = None) -> None:
             ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:g}"))
             ax.set_xticks(sorted(s["workers"].unique()))
             ax.set_xlim(0.7, max(s["workers"]) + 0.3)
+            if all_workers and s["workers"].max() > cores:
+                ax.axvspan(cores + 0.5, s["workers"].max() + 0.3, color="0.92", zorder=0)
+                ax.text(cores + 0.55, 0.97, "more workers than\nphysical cores", transform=ax.get_xaxis_transform(),
+                        va="top", ha="left", fontsize=8, color="0.35")
             ax.set_title(size_label(workload, size), fontsize=11)
             ax.set_xlabel("workers")
             ax.grid(alpha=0.25, which="major")
         note = "dots: individual repetitions; marker: median" if raw is not None else "marker: median; bars: min-max"
+        suffix = "_all_workers" if all_workers else ""
         finish(fig, axes, "Kernel time (s)", f"{WORKLOADS.get(workload, workload)}: kernel time ({note})",
-               sub, out_dir / f"{workload}_kernel_time.png")
+               sub, out_dir / f"{workload}_kernel_time{suffix}.png")
 
 
 def main() -> None:
@@ -154,6 +188,7 @@ def main() -> None:
     out.mkdir(exist_ok=True)
     scaling(Path(a.csv), out)
     times(Path(a.csv), out, Path(a.raw) if a.raw else None)
+    times(Path(a.csv), out, Path(a.raw) if a.raw else None, all_workers=True)
 
 
 if __name__ == "__main__":

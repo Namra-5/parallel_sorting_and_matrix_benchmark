@@ -5,6 +5,8 @@ Only runs with status == "ok" (exit code 0 AND output identical to the sequentia
 
   wall time      median over valid repetitions of the whole-process time        -> median_s, mean_s, std_s, min_s, max_s
   kernel time    median over valid repetitions of the in-program compute time   -> kernel_median_s   (may be empty)
+  interval       kernel_speedup_vs_1worker_lo / _hi: conservative, distribution-free interval of the kernel speedup against
+                 the same model with one worker (order statistics of the repetitions; see speedup_interval)
   range / noise  kernel_min_s, kernel_max_s, kernel_std_s and kernel_cv (= std / mean): large values (say > 0.15) mean the repetitions disagree
                  (thermal throttling, background load) and the configuration should be interpreted with care
 
@@ -27,18 +29,48 @@ from __future__ import annotations
 
 import argparse
 import sys
+from math import comb
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 HERE = Path(__file__).resolve().parent
 KEY = ["workload", "model", "size", "workers", "oversubscribed"]
 REQUIRED = KEY + ["rep", "wall_s", "status"]
+def median_ci_rank(n: int, min_cover: float = 0.90):
+    """Largest rank l such that [x_(l), x_(n+1-l)] is a distribution-free confidence interval for the median with exact
+    coverage >= min_cover (coverage = 1 - 2 * P(Binomial(n, 1/2) <= l - 1)). Returns (l, coverage) or None if n is too small
+    (n = 5 gives the sample range with 93.8%; n = 15 gives [x_(4), x_(12)] with 96.5%)."""
+    best = None
+    for l in range(1, n // 2 + 1):
+        cover = 1 - 2 * sum(comb(n, k) for k in range(l)) / 2 ** n
+        if cover >= min_cover:
+            best = (l, cover)
+    return best
+
+
+def speedup_interval(base, new):
+    """Conservative interval for the ratio median(base) / median(new): each median gets its exact distribution-free
+    interval (median_ci_rank) and the ratio bounds are [lo_base / hi_new, hi_base / lo_new]. The ratio of the true medians
+    lies inside whenever both medians do, i.e. with probability >= 1 - alpha_base - alpha_new (87.5% for 5 + 5 repetitions,
+    93% for 15 + 15), assuming independent repetitions (drift can make the true coverage lower). Deterministic: no random
+    numbers are used. Returns (nan, nan) if either side is too small for a 90% median interval."""
+    base = np.sort(np.asarray(base, dtype=float))
+    new = np.sort(np.asarray(new, dtype=float))
+    rb, rn = median_ci_rank(len(base)), median_ci_rank(len(new))
+    if rb is None or rn is None:
+        return float("nan"), float("nan")
+    lb, ln = rb[0], rn[0]
+    return float(base[lb - 1] / new[len(new) - ln]), float(base[len(base) - lb] / new[ln - 1])
+
+
 COLUMNS = KEY + ["n_runs", "n_ok", "n_failed", "n_mismatch", "n_timeout", "n_no_reference",
                  "median_s", "mean_s", "std_s", "min_s", "max_s", "kernel_median_s", "kernel_min_s", "kernel_max_s", "kernel_std_s", "kernel_cv",
                  "seq_median_s", "speedup_vs_seq", "efficiency",
                  "speedup_vs_1worker", "efficiency_vs_1worker",
-                 "kernel_speedup_vs_seq", "kernel_efficiency", "kernel_speedup_vs_1worker",
+                 "kernel_speedup_vs_seq", "kernel_efficiency", "kernel_speedup_vs_1worker", "kernel_speedup_vs_1worker_lo",
+                 "kernel_speedup_vs_1worker_hi",
                  "status", "scaling_valid"]
 
 
@@ -86,6 +118,22 @@ def standardize(raw: pd.DataFrame) -> pd.DataFrame:
     out["kernel_speedup_vs_seq"] = out["seq_kernel_s"] / out["kernel_median_s"]
     out["kernel_efficiency"] = out["kernel_speedup_vs_seq"] / out["workers"]
     out["kernel_speedup_vs_1worker"] = out["one_kernel_s"] / out["kernel_median_s"]
+
+    # conservative interval of the kernel speedup against the same model with one worker (see speedup_interval)
+    samples = {k: v["kernel_s"].dropna().to_numpy() for k, v in ok.groupby(["workload", "model", "size", "workers"])}
+    lo, hi = [], []
+    for r in out.itertuples():
+        a = samples.get((r.workload, r.model, r.size, 1))
+        b = samples.get((r.workload, r.model, r.size, r.workers))
+        if r.model == "seq" or r.workers == 1 or a is None or b is None:
+            lo.append(float("nan"))
+            hi.append(float("nan"))
+        else:
+            l_, h_ = speedup_interval(a, b)
+            lo.append(l_)
+            hi.append(h_)
+    out["kernel_speedup_vs_1worker_lo"] = lo
+    out["kernel_speedup_vs_1worker_hi"] = hi
 
     out["status"] = [("INVALID" if n == 0 else "ok" if n == r else "PARTIAL")
                      for n, r in zip(out["n_ok"], out["n_runs"])]

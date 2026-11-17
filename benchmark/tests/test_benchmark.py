@@ -19,6 +19,7 @@ def load(name):
 
 
 rb = load("run_benchmark")
+rt = load("results_table")
 sd = load("standardize")
 
 
@@ -210,6 +211,32 @@ def test_kernel_noise_columns():
     assert o.loc["omp", "kernel_std_s"] == pytest.approx(1.0) and o.loc["omp", "kernel_cv"] == pytest.approx(0.5)
 
 
+def test_median_interval_ranks_have_exact_coverage():
+    l5, c5 = sd.median_ci_rank(5)
+    l15, c15 = sd.median_ci_rank(15)
+    assert (l5, round(c5, 4)) == (1, 0.9375)            # the sample range
+    assert (l15, round(c15, 3)) == (4, 0.965)           # [x_(4), x_(12)]
+    assert sd.median_ci_rank(4) is None and sd.median_ci_rank(3) is None
+
+
+def test_speedup_interval_brackets_the_estimate_and_is_deterministic():
+    import numpy as np
+    base, new = np.linspace(10, 12, 15), np.linspace(5, 6, 15)          # medians 11 and 5.5 -> ratio 2
+    lo, hi = sd.speedup_interval(base, new)
+    assert lo < 2.0 < hi and (lo, hi) == sd.speedup_interval(base, new)
+    assert sd.speedup_interval([4.0] * 5, [2.0] * 5) == (2.0, 2.0)      # no spread -> no uncertainty
+    assert all(np.isnan(sd.speedup_interval([1.0, 2.0, 3.0], [1.0, 2.0, 3.0])))   # too few repetitions
+
+
+def test_interval_columns_in_the_standardised_table():
+    rows = [["matrix", "seq", 100, 1, False, r, 10.0, 1.0 + 0.01 * r, 0, "a", "ok", ""] for r in range(1, 6)]
+    for w, t in ((1, 1.0), (2, 0.55)):
+        rows += [["matrix", "omp", 100, w, False, r, 10.0, t + 0.01 * r, 0, "a", "ok", ""] for r in range(1, 6)]
+    o = sd.standardize(frame(rows)).set_index(["model", "workers"])
+    assert o.loc[("omp", 2), "kernel_speedup_vs_1worker_lo"] < o.loc[("omp", 2), "kernel_speedup_vs_1worker"] < o.loc[("omp", 2), "kernel_speedup_vs_1worker_hi"]
+    assert pd.isna(o.loc[("omp", 1), "kernel_speedup_vs_1worker_lo"]) and pd.isna(o.loc[("seq", 1), "kernel_speedup_vs_1worker_hi"])
+
+
 def test_kernel_range_columns():
     df = frame([["matrix", "omp", 100, 1, False, r, 10.0, k, 0, "a", "ok", ""] for r, k in enumerate([1.0, 2.0, 4.0], 1)]
                + [["matrix", "seq", 100, 1, False, 1, 10.0, 1.0, 0, "a", "ok", ""]])
@@ -228,7 +255,8 @@ def test_all_figures_are_written(tmp_path):
     spec.loader.exec_module(pr)
     pr.scaling(csv_path, tmp_path)
     pr.times(csv_path, tmp_path)
-    for name in ("matrix_speedup_kernel", "matrix_speedup_wall", "matrix_kernel_time"):
+    pr.times(csv_path, tmp_path, all_workers=True)
+    for name in ("matrix_speedup_kernel", "matrix_speedup_wall", "matrix_kernel_time", "matrix_kernel_time_all_workers"):
         assert (tmp_path / f"{name}.png").stat().st_size > 1000
 
 
@@ -268,3 +296,47 @@ def test_old_schema_without_kernel_column_still_works():
 def test_missing_columns_fail_loudly():
     with pytest.raises(ValueError):
         sd.standardize(pd.DataFrame({"workload": ["x"]}))
+
+
+def _fake_results(tmp_path, bad_status=False, drop_one_run=False):
+    """A small but complete synthetic dataset (3 repetitions) written the way the harness writes it."""
+    import json
+    rows = []
+    cfg = [("seq", 1, 1.0)] + [(m, w, 1.0 / (0.7 * w + 0.3)) for m in ("omp", "thread2", "mpi") for w in (1, 2, 3)]
+    for model, w, t in cfg:
+        for rep in range(1, 4):
+            rows.append(["matrix", model, 100, w, w > 2, rep, 10.0 * t + 1, t * (1 + 0.01 * rep), 0, "a",
+                         "mismatch" if (bad_status and model == "omp" and w == 2 and rep == 1) else "ok", ""])
+    raw = frame(rows)
+    df = sd.standardize(raw[raw["status"] == "ok"] if not bad_status else raw)
+    if drop_one_run:
+        raw = raw.iloc[1:]
+    d = tmp_path / "results"
+    d.mkdir(parents=True)
+    df.to_csv(d / "benchmark_results.csv", index=False)
+    raw.to_csv(d / "raw_runs.csv", index=False)
+    (d / "hardware_environment.json").write_text(json.dumps({"protocol": {"reps": 3, "sort_reps": 3}}))
+    return d
+
+
+def test_results_block_is_generated_from_the_data(tmp_path):
+    block = rt.render_block(_fake_results(tmp_path))
+    assert block.startswith(rt.START) and block.endswith(rt.END)
+    assert "All 30 recorded runs" in block and "(10 configurations)" in block
+    assert "| Matrix multiplication | 100×100 | OpenMP |" in block and "3 workers*" in block
+    readme = "intro\n" + rt.START + "\nold\n" + rt.END + "\noutro"
+    new = rt.replace_block(readme, block)
+    assert new.startswith("intro\n") and new.endswith("\noutro") and "old" not in new
+
+
+def test_results_block_refuses_to_claim_validity_it_cannot_support(tmp_path):
+    with pytest.raises(SystemExit):
+        rt.render_block(_fake_results(tmp_path / "a", bad_status=True))      # a run is not ok
+    with pytest.raises(SystemExit):
+        rt.render_block(_fake_results(tmp_path / "b", drop_one_run=True))    # a repetition is missing
+
+
+@pytest.mark.skipif(not (B / "results" / "benchmark_results.csv").exists(), reason="no dataset in this checkout")
+def test_readme_results_block_matches_the_committed_dataset():
+    """Every number in the README results block is generated; this fails if README and dataset ever diverge."""
+    assert rt.main(["--check"]) == 0
