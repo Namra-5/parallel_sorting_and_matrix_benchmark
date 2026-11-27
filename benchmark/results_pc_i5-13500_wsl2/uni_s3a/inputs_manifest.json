@@ -1,0 +1,10 @@
+{
+  "mat_4000_a.txt": {
+    "bytes": 290481543,
+    "sha256": "f372ca5af0a2b0df9884ab5d07592aa8eba1595fd1d24a60259ba4fab51d7c6b"
+  },
+  "mat_4000_b.txt": {
+    "bytes": 290483124,
+    "sha256": "381f4f82286a19a19674f7324ecb8af02ea2da5b5dd038bf63efbc2115e01fee"
+  }
+}

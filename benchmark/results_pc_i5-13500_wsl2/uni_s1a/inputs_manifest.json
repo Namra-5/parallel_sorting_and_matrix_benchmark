@@ -1,0 +1,18 @@
+{
+  "mat_1000_a.txt": {
+    "bytes": 18155462,
+    "sha256": "30f03bec27147ef46bb1524346153b9fa5394638a2d24c7084d9e9edaf0fce04"
+  },
+  "mat_1000_b.txt": {
+    "bytes": 18154992,
+    "sha256": "48bd880a471252828db176ffd55d06f8066bde313b6b54da761b94cfe5834a5a"
+  },
+  "mat_1500_a.txt": {
+    "bytes": 40849140,
+    "sha256": "243197aeed56af2b372c6d1b5414e8082439ddc75b251e2c44f12bd4b0e86879"
+  },
+  "mat_1500_b.txt": {
+    "bytes": 40849530,
+    "sha256": "10081035a3caebddb5472e7f7a2d01fa1d82179284edbe802dd6b4bd114a09d6"
+  }
+}

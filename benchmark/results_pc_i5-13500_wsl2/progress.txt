@@ -1,0 +1,47 @@
+2026-11-24T04:13:24Z driver start | deadline Tue 17:13 | load1=0.21 | 14 GiB RAM available | 943G disk free
+2026-11-24T04:13:24Z START uni_s1a (expect 160 runs, estimate 22 min)
+2026-11-24T04:31:49Z END uni_s1a rc=0 after 18 min | 160 runs, 0 NOT ok -> benchmark/results/uni_s1a/raw_runs.csv   (* = oversubscribed: more workers than cores)
+2026-11-24T04:31:53Z POSTPROCESS ok uni_s1a
+2026-11-24T04:31:53Z SNAPSHOT saved ~/uni_results.tgz (556K)
+2026-11-24T04:31:53Z SNAPSHOT also copied to /mnt/c/Users/Public
+2026-11-24T04:31:53Z START uni_s1b (expect 720 runs, estimate 27 min)
+2026-11-24T05:02:48Z driver start | deadline Tue 17:07 | load1=0.03 | 14 GiB RAM available | 943G disk free
+2026-11-24T05:02:48Z uni_s1a already done, skipping
+2026-11-24T05:02:48Z moved unfinished uni_s1b aside
+2026-11-24T05:02:48Z START uni_s1b (expect 720 runs, estimate 27 min)
+2026-11-24T05:29:00Z END uni_s1b rc=0 after 26 min | 720 runs, 0 NOT ok -> benchmark/results/uni_s1b/raw_runs.csv   (* = oversubscribed: more workers than cores)
+2026-11-24T05:29:04Z POSTPROCESS ok uni_s1b
+2026-11-24T05:29:05Z SNAPSHOT saved ~/uni_results.tgz (1.4M)
+2026-11-24T05:29:05Z SNAPSHOT also copied to /mnt/c/Users/Public
+2026-11-24T05:29:05Z START uni_s1c (expect 80 runs, estimate 34 min)
+2026-11-24T05:59:58Z END uni_s1c rc=0 after 30 min | 80 runs, 0 NOT ok -> benchmark/results/uni_s1c/raw_runs.csv   (* = oversubscribed: more workers than cores)
+2026-11-24T06:00:00Z POSTPROCESS ok uni_s1c
+2026-11-24T06:00:00Z CALIBRATION: matrix-2000 session took 1853 s vs estimate 2050 s -> later estimates x0.904
+2026-11-24T06:00:01Z SNAPSHOT saved ~/uni_results.tgz (1.7M)
+2026-11-24T06:00:01Z SNAPSHOT also copied to /mnt/c/Users/Public
+2026-11-24T06:00:01Z START uni_s2 (expect 80 runs, estimate 120 min)
+2026-11-24T08:21:26Z driver start | deadline Tue 17:00 | load1=0.00 | 14 GiB RAM available | 942G disk free
+2026-11-24T08:21:26Z uni_s1a already done, skipping
+2026-11-24T08:21:26Z uni_s1b already done, skipping
+2026-11-24T08:21:26Z uni_s1c already done, skipping
+2026-11-24T08:21:26Z moved unfinished uni_s2 aside
+2026-11-24T08:21:26Z START uni_s2 (expect 80 runs, estimate 120 min)
+2026-11-24T10:27:50Z END uni_s2 rc=0 after 126 min | 80 runs, 0 NOT ok -> benchmark/results/uni_s2/raw_runs.csv   (* = oversubscribed: more workers than cores)
+2026-11-24T10:27:53Z POSTPROCESS ok uni_s2
+2026-11-24T10:27:53Z SNAPSHOT saved ~/uni_results.tgz (2.1M)
+2026-11-24T10:27:53Z SNAPSHOT also copied to /mnt/c/Users/Public
+2026-11-24T10:27:53Z SKIP uni_s3a: needs about 232 min (estimate x1.4), would end after the deadline 17:00
+2026-11-24T10:27:53Z SKIP uni_s3b: needs about 438 min (estimate x1.4), would end after the deadline 17:00
+2026-11-24T10:27:53Z driver finished
+2026-11-26T04:08:07Z driver start | deadline Thu 17:00 | load1=0.00 | 14 GiB RAM available | 942G disk free
+2026-11-26T04:08:07Z uni_s1a already done, skipping
+2026-11-26T04:08:07Z uni_s1b already done, skipping
+2026-11-26T04:08:07Z uni_s1c already done, skipping
+2026-11-26T04:08:07Z uni_s2 already done, skipping
+2026-11-26T04:08:07Z START uni_s3a (expect 48 runs, estimate 166 min)
+2026-11-26T08:01:00Z END uni_s3a rc=0 after 232 min | 48 runs, 0 NOT ok -> benchmark/results/uni_s3a/raw_runs.csv   (* = oversubscribed: more workers than cores)
+2026-11-26T08:01:03Z POSTPROCESS ok uni_s3a
+2026-11-26T08:01:04Z SNAPSHOT saved ~/uni_results.tgz (2.5M)
+2026-11-26T08:01:04Z SNAPSHOT also copied to /mnt/c/Users/Public
+2026-11-26T08:01:04Z SKIP uni_s3b: needs about 438 min (estimate x1.4), would end after the deadline 17:00
+2026-11-26T08:01:04Z driver finished

@@ -1,0 +1,14 @@
+{
+  "array_50000.txt": {
+    "bytes": 244312,
+    "sha256": "78292733dde0e1b65313b777c68e9df24c631c2185abbf785961e60b4c076505"
+  },
+  "array_500000.txt": {
+    "bytes": 2444869,
+    "sha256": "a0f93ddd7c2b38e38af017e786ff49a8ab846a4663341b3d03deb5fbf1faf140"
+  },
+  "array_5000000.txt": {
+    "bytes": 24446587,
+    "sha256": "a8b0f39a3527d535896b191ae11ccd7ce2b4c61b1a5ee2dae63e008e3a3408f4"
+  }
+}
