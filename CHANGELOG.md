@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased — second-machine dataset
+
+### Added
+- `benchmark/results_pc_i5-13500_wsl2/`: 1,088 validated runs from a second machine (Intel Core i5-13500 under WSL2): matrices 1000 to 4000, merge sorts of 50,000 to
+  5,000,000 elements, worker counts 1, 2, 4, 8 and 16, five measurement sessions, with a dataset card that states provenance and limits.
+- `benchmark/machines_table.py` and `benchmark/tests/test_machines.py`: generate the README section for the second machine and the
+  laptop-versus-desktop comparison from the data (no hand-typed numbers), and refuse to do so if a run is not `ok`, a repetition is missing,
+  sessions overlap or the CPU differs.
+- `benchmark/unattended/`: the scripts that ran the sessions without anyone present (as used; copy them to the repository root to run).
+- The measurements of both machines are published as the dataset DOI 10.5281/zenodo.24554982 and on Hugging Face (`Namra-5/hpc-parallel-matrix-sorting-benchmark`).
+
+### Notes
+- Between the code version of the laptop measurements (`411d64e`) and that of the second machine, `git diff --stat` over the C sources,
+  Makefiles, `run_benchmark.py` and `standardize.py` lists only `standardize.py` as changed.
+- Two unplanned shutdowns interrupted two sessions on 2026-11-24; both were measured again from the start and the interrupted data are not
+  part of the dataset.
+
 ## 2.0.0 — audit and validation release
 
 ### Fixed (correctness)

@@ -1,0 +1,729 @@
+effective cores: 10 (physical 10, usable logical 20); workers: [1, 2, 4, 8, 16]; MPI: openmpi (oversubscribe flag: ['--oversubscribe'])
+mergesort n=50000   mpi      w=16 * rep=1/15 #1  wall=    0.573s kernel=   0.0029s exit=0 ok
+mergesort n=50000   thread2  w=16 * rep=1/15 #2  wall=    0.011s kernel=   0.0020s exit=0 ok
+mergesort n=50000   thread2  w=4    rep=1/15 #3  wall=    0.015s kernel=   0.0020s exit=0 ok
+mergesort n=50000   thread2  w=1    rep=1/15 #4  wall=    0.018s kernel=   0.0046s exit=0 ok
+mergesort n=50000   seq      w=1    rep=1/15 #5  wall=    0.014s kernel=   0.0044s exit=0 ok
+mergesort n=50000   mpi      w=4    rep=1/15 #6  wall=    0.388s kernel=   0.0022s exit=0 ok
+mergesort n=50000   thread2  w=8    rep=1/15 #7  wall=    0.011s kernel=   0.0016s exit=0 ok
+mergesort n=50000   mpi      w=8    rep=1/15 #8  wall=    0.420s kernel=   0.0017s exit=0 ok
+mergesort n=50000   omp      w=1    rep=1/15 #9  wall=    0.017s kernel=   0.0047s exit=0 ok
+mergesort n=50000   omp      w=4    rep=1/15 #10 wall=    0.014s kernel=   0.0029s exit=0 ok
+mergesort n=50000   thread2  w=2    rep=1/15 #11 wall=    0.013s kernel=   0.0028s exit=0 ok
+mergesort n=50000   omp      w=8    rep=1/15 #12 wall=    0.013s kernel=   0.0020s exit=0 ok
+mergesort n=50000   omp      w=2    rep=1/15 #13 wall=    0.013s kernel=   0.0023s exit=0 ok
+mergesort n=50000   mpi      w=1    rep=1/15 #14 wall=    0.368s kernel=   0.0041s exit=0 ok
+mergesort n=50000   mpi      w=2    rep=1/15 #15 wall=    0.371s kernel=   0.0030s exit=0 ok
+mergesort n=50000   omp      w=16 * rep=1/15 #16 wall=    0.015s kernel=   0.0055s exit=0 ok
+mergesort n=50000   mpi      w=8    rep=2/15 #1  wall=    0.421s kernel=   0.0022s exit=0 ok
+mergesort n=50000   mpi      w=4    rep=2/15 #2  wall=    0.393s kernel=   0.0023s exit=0 ok
+mergesort n=50000   mpi      w=16 * rep=2/15 #3  wall=    0.562s kernel=   0.0084s exit=0 ok
+mergesort n=50000   omp      w=1    rep=2/15 #4  wall=    0.015s kernel=   0.0039s exit=0 ok
+mergesort n=50000   thread2  w=1    rep=2/15 #5  wall=    0.017s kernel=   0.0048s exit=0 ok
+mergesort n=50000   thread2  w=2    rep=2/15 #6  wall=    0.012s kernel=   0.0028s exit=0 ok
+mergesort n=50000   thread2  w=4    rep=2/15 #7  wall=    0.011s kernel=   0.0019s exit=0 ok
+mergesort n=50000   omp      w=16 * rep=2/15 #8  wall=    0.014s kernel=   0.0026s exit=0 ok
+mergesort n=50000   mpi      w=1    rep=2/15 #9  wall=    0.384s kernel=   0.0055s exit=0 ok
+mergesort n=50000   thread2  w=16 * rep=2/15 #10 wall=    0.012s kernel=   0.0019s exit=0 ok
+mergesort n=50000   omp      w=8    rep=2/15 #11 wall=    0.011s kernel=   0.0021s exit=0 ok
+mergesort n=50000   thread2  w=8    rep=2/15 #12 wall=    0.017s kernel=   0.0025s exit=0 ok
+mergesort n=50000   mpi      w=2    rep=2/15 #13 wall=    0.371s kernel=   0.0030s exit=0 ok
+mergesort n=50000   omp      w=4    rep=2/15 #14 wall=    0.014s kernel=   0.0027s exit=0 ok
+mergesort n=50000   omp      w=2    rep=2/15 #15 wall=    0.012s kernel=   0.0023s exit=0 ok
+mergesort n=50000   seq      w=1    rep=2/15 #16 wall=    0.016s kernel=   0.0051s exit=0 ok
+mergesort n=50000   mpi      w=4    rep=3/15 #1  wall=    0.388s kernel=   0.0019s exit=0 ok
+mergesort n=50000   thread2  w=16 * rep=3/15 #2  wall=    0.014s kernel=   0.0018s exit=0 ok
+mergesort n=50000   thread2  w=2    rep=3/15 #3  wall=    0.013s kernel=   0.0028s exit=0 ok
+mergesort n=50000   omp      w=16 * rep=3/15 #4  wall=    0.012s kernel=   0.0025s exit=0 ok
+mergesort n=50000   seq      w=1    rep=3/15 #5  wall=    0.014s kernel=   0.0041s exit=0 ok
+mergesort n=50000   omp      w=2    rep=3/15 #6  wall=    0.012s kernel=   0.0029s exit=0 ok
+mergesort n=50000   omp      w=4    rep=3/15 #7  wall=    0.012s kernel=   0.0025s exit=0 ok
+mergesort n=50000   thread2  w=4    rep=3/15 #8  wall=    0.011s kernel=   0.0018s exit=0 ok
+mergesort n=50000   thread2  w=8    rep=3/15 #9  wall=    0.012s kernel=   0.0016s exit=0 ok
+mergesort n=50000   thread2  w=1    rep=3/15 #10 wall=    0.014s kernel=   0.0053s exit=0 ok
+mergesort n=50000   mpi      w=16 * rep=3/15 #11 wall=    0.547s kernel=   0.0039s exit=0 ok
+mergesort n=50000   omp      w=8    rep=3/15 #12 wall=    0.016s kernel=   0.0021s exit=0 ok
+mergesort n=50000   mpi      w=8    rep=3/15 #13 wall=    0.410s kernel=   0.0014s exit=0 ok
+mergesort n=50000   mpi      w=2    rep=3/15 #14 wall=    0.370s kernel=   0.0029s exit=0 ok
+mergesort n=50000   mpi      w=1    rep=3/15 #15 wall=    0.371s kernel=   0.0047s exit=0 ok
+mergesort n=50000   omp      w=1    rep=3/15 #16 wall=    0.012s kernel=   0.0039s exit=0 ok
+mergesort n=50000   omp      w=8    rep=4/15 #1  wall=    0.013s kernel=   0.0029s exit=0 ok
+mergesort n=50000   mpi      w=2    rep=4/15 #2  wall=    0.379s kernel=   0.0029s exit=0 ok
+mergesort n=50000   mpi      w=8    rep=4/15 #3  wall=    0.423s kernel=   0.0027s exit=0 ok
+mergesort n=50000   omp      w=2    rep=4/15 #4  wall=    0.012s kernel=   0.0029s exit=0 ok
+mergesort n=50000   mpi      w=4    rep=4/15 #5  wall=    0.394s kernel=   0.0021s exit=0 ok
+mergesort n=50000   thread2  w=16 * rep=4/15 #6  wall=    0.011s kernel=   0.0026s exit=0 ok
+mergesort n=50000   omp      w=4    rep=4/15 #7  wall=    0.013s kernel=   0.0022s exit=0 ok
+mergesort n=50000   thread2  w=1    rep=4/15 #8  wall=    0.014s kernel=   0.0048s exit=0 ok
+mergesort n=50000   thread2  w=2    rep=4/15 #9  wall=    0.012s kernel=   0.0029s exit=0 ok
+mergesort n=50000   omp      w=1    rep=4/15 #10 wall=    0.015s kernel=   0.0039s exit=0 ok
+mergesort n=50000   thread2  w=8    rep=4/15 #11 wall=    0.011s kernel=   0.0016s exit=0 ok
+mergesort n=50000   omp      w=16 * rep=4/15 #12 wall=    0.012s kernel=   0.0024s exit=0 ok
+mergesort n=50000   mpi      w=16 * rep=4/15 #13 wall=    0.549s kernel=   0.0052s exit=0 ok
+mergesort n=50000   mpi      w=1    rep=4/15 #14 wall=    0.377s kernel=   0.0048s exit=0 ok
+mergesort n=50000   seq      w=1    rep=4/15 #15 wall=    0.013s kernel=   0.0037s exit=0 ok
+mergesort n=50000   thread2  w=4    rep=4/15 #16 wall=    0.011s kernel=   0.0018s exit=0 ok
+mergesort n=50000   mpi      w=1    rep=5/15 #1  wall=    0.370s kernel=   0.0047s exit=0 ok
+mergesort n=50000   thread2  w=1    rep=5/15 #2  wall=    0.014s kernel=   0.0044s exit=0 ok
+mergesort n=50000   omp      w=4    rep=5/15 #3  wall=    0.014s kernel=   0.0027s exit=0 ok
+mergesort n=50000   mpi      w=2    rep=5/15 #4  wall=    0.375s kernel=   0.0031s exit=0 ok
+mergesort n=50000   seq      w=1    rep=5/15 #5  wall=    0.013s kernel=   0.0038s exit=0 ok
+mergesort n=50000   omp      w=1    rep=5/15 #6  wall=    0.016s kernel=   0.0048s exit=0 ok
+mergesort n=50000   omp      w=16 * rep=5/15 #7  wall=    0.016s kernel=   0.0025s exit=0 ok
+mergesort n=50000   mpi      w=16 * rep=5/15 #8  wall=    0.528s kernel=   0.0025s exit=0 ok
+mergesort n=50000   thread2  w=4    rep=5/15 #9  wall=    0.017s kernel=   0.0020s exit=0 ok
+mergesort n=50000   thread2  w=2    rep=5/15 #10 wall=    0.016s kernel=   0.0031s exit=0 ok
+mergesort n=50000   omp      w=2    rep=5/15 #11 wall=    0.013s kernel=   0.0027s exit=0 ok
+mergesort n=50000   mpi      w=8    rep=5/15 #12 wall=    0.419s kernel=   0.0024s exit=0 ok
+mergesort n=50000   mpi      w=4    rep=5/15 #13 wall=    0.395s kernel=   0.0024s exit=0 ok
+mergesort n=50000   omp      w=8    rep=5/15 #14 wall=    0.011s kernel=   0.0021s exit=0 ok
+mergesort n=50000   thread2  w=16 * rep=5/15 #15 wall=    0.012s kernel=   0.0020s exit=0 ok
+mergesort n=50000   thread2  w=8    rep=5/15 #16 wall=    0.017s kernel=   0.0022s exit=0 ok
+mergesort n=50000   mpi      w=16 * rep=6/15 #1  wall=    0.543s kernel=   0.0022s exit=0 ok
+mergesort n=50000   mpi      w=4    rep=6/15 #2  wall=    0.381s kernel=   0.0018s exit=0 ok
+mergesort n=50000   seq      w=1    rep=6/15 #3  wall=    0.014s kernel=   0.0044s exit=0 ok
+mergesort n=50000   thread2  w=2    rep=6/15 #4  wall=    0.011s kernel=   0.0027s exit=0 ok
+mergesort n=50000   omp      w=16 * rep=6/15 #5  wall=    0.020s kernel=   0.0098s exit=0 ok
+mergesort n=50000   mpi      w=2    rep=6/15 #6  wall=    0.370s kernel=   0.0024s exit=0 ok
+mergesort n=50000   omp      w=4    rep=6/15 #7  wall=    0.012s kernel=   0.0029s exit=0 ok
+mergesort n=50000   omp      w=8    rep=6/15 #8  wall=    0.012s kernel=   0.0022s exit=0 ok
+mergesort n=50000   thread2  w=8    rep=6/15 #9  wall=    0.011s kernel=   0.0016s exit=0 ok
+mergesort n=50000   omp      w=1    rep=6/15 #10 wall=    0.014s kernel=   0.0044s exit=0 ok
+mergesort n=50000   thread2  w=1    rep=6/15 #11 wall=    0.014s kernel=   0.0045s exit=0 ok
+mergesort n=50000   omp      w=2    rep=6/15 #12 wall=    0.013s kernel=   0.0028s exit=0 ok
+mergesort n=50000   thread2  w=16 * rep=6/15 #13 wall=    0.012s kernel=   0.0018s exit=0 ok
+mergesort n=50000   thread2  w=4    rep=6/15 #14 wall=    0.014s kernel=   0.0019s exit=0 ok
+mergesort n=50000   mpi      w=8    rep=6/15 #15 wall=    0.423s kernel=   0.0015s exit=0 ok
+mergesort n=50000   mpi      w=1    rep=6/15 #16 wall=    0.370s kernel=   0.0046s exit=0 ok
+mergesort n=50000   mpi      w=2    rep=7/15 #1  wall=    0.375s kernel=   0.0029s exit=0 ok
+mergesort n=50000   omp      w=8    rep=7/15 #2  wall=    0.013s kernel=   0.0019s exit=0 ok
+mergesort n=50000   seq      w=1    rep=7/15 #3  wall=    0.015s kernel=   0.0047s exit=0 ok
+mergesort n=50000   omp      w=16 * rep=7/15 #4  wall=    0.016s kernel=   0.0045s exit=0 ok
+mergesort n=50000   thread2  w=1    rep=7/15 #5  wall=    0.015s kernel=   0.0039s exit=0 ok
+mergesort n=50000   mpi      w=4    rep=7/15 #6  wall=    0.375s kernel=   0.0018s exit=0 ok
+mergesort n=50000   mpi      w=1    rep=7/15 #7  wall=    0.364s kernel=   0.0061s exit=0 ok
+mergesort n=50000   mpi      w=8    rep=7/15 #8  wall=    0.429s kernel=   0.0021s exit=0 ok
+mergesort n=50000   omp      w=4    rep=7/15 #9  wall=    0.013s kernel=   0.0027s exit=0 ok
+mergesort n=50000   omp      w=2    rep=7/15 #10 wall=    0.014s kernel=   0.0031s exit=0 ok
+mergesort n=50000   thread2  w=8    rep=7/15 #11 wall=    0.010s kernel=   0.0016s exit=0 ok
+mergesort n=50000   thread2  w=4    rep=7/15 #12 wall=    0.011s kernel=   0.0019s exit=0 ok
+mergesort n=50000   thread2  w=2    rep=7/15 #13 wall=    0.012s kernel=   0.0027s exit=0 ok
+mergesort n=50000   omp      w=1    rep=7/15 #14 wall=    0.014s kernel=   0.0038s exit=0 ok
+mergesort n=50000   thread2  w=16 * rep=7/15 #15 wall=    0.013s kernel=   0.0020s exit=0 ok
+mergesort n=50000   mpi      w=16 * rep=7/15 #16 wall=    0.566s kernel=   0.0083s exit=0 ok
+mergesort n=50000   omp      w=16 * rep=8/15 #1  wall=    0.016s kernel=   0.0029s exit=0 ok
+mergesort n=50000   thread2  w=2    rep=8/15 #2  wall=    0.014s kernel=   0.0024s exit=0 ok
+mergesort n=50000   thread2  w=16 * rep=8/15 #3  wall=    0.012s kernel=   0.0017s exit=0 ok
+mergesort n=50000   omp      w=4    rep=8/15 #4  wall=    0.014s kernel=   0.0027s exit=0 ok
+mergesort n=50000   omp      w=1    rep=8/15 #5  wall=    0.018s kernel=   0.0048s exit=0 ok
+mergesort n=50000   omp      w=2    rep=8/15 #6  wall=    0.013s kernel=   0.0028s exit=0 ok
+mergesort n=50000   mpi      w=4    rep=8/15 #7  wall=    0.399s kernel=   0.0020s exit=0 ok
+mergesort n=50000   omp      w=8    rep=8/15 #8  wall=    0.011s kernel=   0.0018s exit=0 ok
+mergesort n=50000   mpi      w=16 * rep=8/15 #9  wall=    0.552s kernel=   0.0052s exit=0 ok
+mergesort n=50000   thread2  w=1    rep=8/15 #10 wall=    0.013s kernel=   0.0043s exit=0 ok
+mergesort n=50000   thread2  w=8    rep=8/15 #11 wall=    0.014s kernel=   0.0023s exit=0 ok
+mergesort n=50000   mpi      w=2    rep=8/15 #12 wall=    0.374s kernel=   0.0027s exit=0 ok
+mergesort n=50000   seq      w=1    rep=8/15 #13 wall=    0.015s kernel=   0.0043s exit=0 ok
+mergesort n=50000   mpi      w=1    rep=8/15 #14 wall=    0.368s kernel=   0.0052s exit=0 ok
+mergesort n=50000   thread2  w=4    rep=8/15 #15 wall=    0.011s kernel=   0.0019s exit=0 ok
+mergesort n=50000   mpi      w=8    rep=8/15 #16 wall=    0.418s kernel=   0.0022s exit=0 ok
+mergesort n=50000   mpi      w=4    rep=9/15 #1  wall=    0.375s kernel=   0.0019s exit=0 ok
+mergesort n=50000   seq      w=1    rep=9/15 #2  wall=    0.014s kernel=   0.0052s exit=0 ok
+mergesort n=50000   mpi      w=2    rep=9/15 #3  wall=    0.380s kernel=   0.0032s exit=0 ok
+mergesort n=50000   mpi      w=8    rep=9/15 #4  wall=    0.423s kernel=   0.0022s exit=0 ok
+mergesort n=50000   thread2  w=8    rep=9/15 #5  wall=    0.018s kernel=   0.0018s exit=0 ok
+mergesort n=50000   omp      w=1    rep=9/15 #6  wall=    0.018s kernel=   0.0048s exit=0 ok
+mergesort n=50000   thread2  w=1    rep=9/15 #7  wall=    0.014s kernel=   0.0047s exit=0 ok
+mergesort n=50000   omp      w=8    rep=9/15 #8  wall=    0.015s kernel=   0.0021s exit=0 ok
+mergesort n=50000   thread2  w=2    rep=9/15 #9  wall=    0.011s kernel=   0.0027s exit=0 ok
+mergesort n=50000   omp      w=4    rep=9/15 #10 wall=    0.013s kernel=   0.0022s exit=0 ok
+mergesort n=50000   omp      w=2    rep=9/15 #11 wall=    0.012s kernel=   0.0023s exit=0 ok
+mergesort n=50000   mpi      w=1    rep=9/15 #12 wall=    0.369s kernel=   0.0053s exit=0 ok
+mergesort n=50000   mpi      w=16 * rep=9/15 #13 wall=    0.546s kernel=   0.0023s exit=0 ok
+mergesort n=50000   thread2  w=4    rep=9/15 #14 wall=    0.014s kernel=   0.0019s exit=0 ok
+mergesort n=50000   omp      w=16 * rep=9/15 #15 wall=    0.018s kernel=   0.0041s exit=0 ok
+mergesort n=50000   thread2  w=16 * rep=9/15 #16 wall=    0.015s kernel=   0.0020s exit=0 ok
+mergesort n=50000   mpi      w=1    rep=10/15 #1  wall=    0.366s kernel=   0.0041s exit=0 ok
+mergesort n=50000   omp      w=4    rep=10/15 #2  wall=    0.021s kernel=   0.0030s exit=0 ok
+mergesort n=50000   mpi      w=8    rep=10/15 #3  wall=    0.416s kernel=   0.0020s exit=0 ok
+mergesort n=50000   omp      w=16 * rep=10/15 #4  wall=    0.012s kernel=   0.0023s exit=0 ok
+mergesort n=50000   omp      w=2    rep=10/15 #5  wall=    0.013s kernel=   0.0024s exit=0 ok
+mergesort n=50000   thread2  w=8    rep=10/15 #6  wall=    0.011s kernel=   0.0016s exit=0 ok
+mergesort n=50000   mpi      w=16 * rep=10/15 #7  wall=    0.562s kernel=   0.0091s exit=0 ok
+mergesort n=50000   mpi      w=4    rep=10/15 #8  wall=    0.384s kernel=   0.0017s exit=0 ok
+mergesort n=50000   omp      w=1    rep=10/15 #9  wall=    0.014s kernel=   0.0041s exit=0 ok
+mergesort n=50000   thread2  w=2    rep=10/15 #10 wall=    0.013s kernel=   0.0027s exit=0 ok
+mergesort n=50000   omp      w=8    rep=10/15 #11 wall=    0.018s kernel=   0.0025s exit=0 ok
+mergesort n=50000   thread2  w=16 * rep=10/15 #12 wall=    0.014s kernel=   0.0020s exit=0 ok
+mergesort n=50000   thread2  w=1    rep=10/15 #13 wall=    0.015s kernel=   0.0045s exit=0 ok
+mergesort n=50000   thread2  w=4    rep=10/15 #14 wall=    0.014s kernel=   0.0018s exit=0 ok
+mergesort n=50000   mpi      w=2    rep=10/15 #15 wall=    0.367s kernel=   0.0026s exit=0 ok
+mergesort n=50000   seq      w=1    rep=10/15 #16 wall=    0.019s kernel=   0.0037s exit=0 ok
+mergesort n=50000   thread2  w=8    rep=11/15 #1  wall=    0.011s kernel=   0.0016s exit=0 ok
+mergesort n=50000   thread2  w=4    rep=11/15 #2  wall=    0.011s kernel=   0.0019s exit=0 ok
+mergesort n=50000   mpi      w=4    rep=11/15 #3  wall=    0.385s kernel=   0.0019s exit=0 ok
+mergesort n=50000   thread2  w=16 * rep=11/15 #4  wall=    0.011s kernel=   0.0018s exit=0 ok
+mergesort n=50000   thread2  w=1    rep=11/15 #5  wall=    0.013s kernel=   0.0047s exit=0 ok
+mergesort n=50000   omp      w=1    rep=11/15 #6  wall=    0.014s kernel=   0.0044s exit=0 ok
+mergesort n=50000   mpi      w=16 * rep=11/15 #7  wall=    0.538s kernel=   0.0082s exit=0 ok
+mergesort n=50000   thread2  w=2    rep=11/15 #8  wall=    0.012s kernel=   0.0023s exit=0 ok
+mergesort n=50000   mpi      w=2    rep=11/15 #9  wall=    0.366s kernel=   0.0038s exit=0 ok
+mergesort n=50000   omp      w=4    rep=11/15 #10 wall=    0.014s kernel=   0.0028s exit=0 ok
+mergesort n=50000   seq      w=1    rep=11/15 #11 wall=    0.017s kernel=   0.0044s exit=0 ok
+mergesort n=50000   mpi      w=8    rep=11/15 #12 wall=    0.422s kernel=   0.0020s exit=0 ok
+mergesort n=50000   omp      w=16 * rep=11/15 #13 wall=    0.012s kernel=   0.0026s exit=0 ok
+mergesort n=50000   mpi      w=1    rep=11/15 #14 wall=    0.369s kernel=   0.0055s exit=0 ok
+mergesort n=50000   omp      w=2    rep=11/15 #15 wall=    0.012s kernel=   0.0029s exit=0 ok
+mergesort n=50000   omp      w=8    rep=11/15 #16 wall=    0.014s kernel=   0.0031s exit=0 ok
+mergesort n=50000   mpi      w=16 * rep=12/15 #1  wall=    0.547s kernel=   0.0033s exit=0 ok
+mergesort n=50000   thread2  w=1    rep=12/15 #2  wall=    0.014s kernel=   0.0046s exit=0 ok
+mergesort n=50000   thread2  w=4    rep=12/15 #3  wall=    0.013s kernel=   0.0019s exit=0 ok
+mergesort n=50000   mpi      w=8    rep=12/15 #4  wall=    0.424s kernel=   0.0027s exit=0 ok
+mergesort n=50000   mpi      w=2    rep=12/15 #5  wall=    0.377s kernel=   0.0022s exit=0 ok
+mergesort n=50000   omp      w=4    rep=12/15 #6  wall=    0.015s kernel=   0.0022s exit=0 ok
+mergesort n=50000   mpi      w=4    rep=12/15 #7  wall=    0.396s kernel=   0.0018s exit=0 ok
+mergesort n=50000   omp      w=1    rep=12/15 #8  wall=    0.015s kernel=   0.0039s exit=0 ok
+mergesort n=50000   thread2  w=8    rep=12/15 #9  wall=    0.014s kernel=   0.0020s exit=0 ok
+mergesort n=50000   thread2  w=16 * rep=12/15 #10 wall=    0.014s kernel=   0.0020s exit=0 ok
+mergesort n=50000   mpi      w=1    rep=12/15 #11 wall=    0.365s kernel=   0.0054s exit=0 ok
+mergesort n=50000   seq      w=1    rep=12/15 #12 wall=    0.013s kernel=   0.0037s exit=0 ok
+mergesort n=50000   omp      w=8    rep=12/15 #13 wall=    0.014s kernel=   0.0019s exit=0 ok
+mergesort n=50000   omp      w=2    rep=12/15 #14 wall=    0.017s kernel=   0.0027s exit=0 ok
+mergesort n=50000   omp      w=16 * rep=12/15 #15 wall=    0.016s kernel=   0.0052s exit=0 ok
+mergesort n=50000   thread2  w=2    rep=12/15 #16 wall=    0.015s kernel=   0.0022s exit=0 ok
+mergesort n=50000   thread2  w=2    rep=13/15 #1  wall=    0.012s kernel=   0.0029s exit=0 ok
+mergesort n=50000   thread2  w=4    rep=13/15 #2  wall=    0.013s kernel=   0.0019s exit=0 ok
+mergesort n=50000   mpi      w=2    rep=13/15 #3  wall=    0.368s kernel=   0.0031s exit=0 ok
+mergesort n=50000   omp      w=8    rep=13/15 #4  wall=    0.013s kernel=   0.0021s exit=0 ok
+mergesort n=50000   omp      w=16 * rep=13/15 #5  wall=    0.014s kernel=   0.0025s exit=0 ok
+mergesort n=50000   thread2  w=1    rep=13/15 #6  wall=    0.012s kernel=   0.0040s exit=0 ok
+mergesort n=50000   omp      w=2    rep=13/15 #7  wall=    0.012s kernel=   0.0028s exit=0 ok
+mergesort n=50000   thread2  w=8    rep=13/15 #8  wall=    0.015s kernel=   0.0019s exit=0 ok
+mergesort n=50000   mpi      w=1    rep=13/15 #9  wall=    0.365s kernel=   0.0053s exit=0 ok
+mergesort n=50000   mpi      w=8    rep=13/15 #10 wall=    0.418s kernel=   0.0018s exit=0 ok
+mergesort n=50000   mpi      w=16 * rep=13/15 #11 wall=    0.535s kernel=   0.0040s exit=0 ok
+mergesort n=50000   mpi      w=4    rep=13/15 #12 wall=    0.387s kernel=   0.0018s exit=0 ok
+mergesort n=50000   omp      w=4    rep=13/15 #13 wall=    0.011s kernel=   0.0023s exit=0 ok
+mergesort n=50000   thread2  w=16 * rep=13/15 #14 wall=    0.013s kernel=   0.0018s exit=0 ok
+mergesort n=50000   seq      w=1    rep=13/15 #15 wall=    0.013s kernel=   0.0037s exit=0 ok
+mergesort n=50000   omp      w=1    rep=13/15 #16 wall=    0.014s kernel=   0.0045s exit=0 ok
+mergesort n=50000   mpi      w=2    rep=14/15 #1  wall=    0.367s kernel=   0.0033s exit=0 ok
+mergesort n=50000   thread2  w=4    rep=14/15 #2  wall=    0.014s kernel=   0.0018s exit=0 ok
+mergesort n=50000   omp      w=2    rep=14/15 #3  wall=    0.014s kernel=   0.0025s exit=0 ok
+mergesort n=50000   seq      w=1    rep=14/15 #4  wall=    0.015s kernel=   0.0037s exit=0 ok
+mergesort n=50000   thread2  w=1    rep=14/15 #5  wall=    0.014s kernel=   0.0046s exit=0 ok
+mergesort n=50000   mpi      w=8    rep=14/15 #6  wall=    0.423s kernel=   0.0032s exit=0 ok
+mergesort n=50000   mpi      w=16 * rep=14/15 #7  wall=    0.541s kernel=   0.0043s exit=0 ok
+mergesort n=50000   omp      w=16 * rep=14/15 #8  wall=    0.016s kernel=   0.0059s exit=0 ok
+mergesort n=50000   thread2  w=2    rep=14/15 #9  wall=    0.015s kernel=   0.0023s exit=0 ok
+mergesort n=50000   mpi      w=1    rep=14/15 #10 wall=    0.368s kernel=   0.0055s exit=0 ok
+mergesort n=50000   omp      w=8    rep=14/15 #11 wall=    0.013s kernel=   0.0022s exit=0 ok
+mergesort n=50000   mpi      w=4    rep=14/15 #12 wall=    0.384s kernel=   0.0022s exit=0 ok
+mergesort n=50000   omp      w=4    rep=14/15 #13 wall=    0.014s kernel=   0.0027s exit=0 ok
+mergesort n=50000   thread2  w=8    rep=14/15 #14 wall=    0.011s kernel=   0.0017s exit=0 ok
+mergesort n=50000   thread2  w=16 * rep=14/15 #15 wall=    0.012s kernel=   0.0018s exit=0 ok
+mergesort n=50000   omp      w=1    rep=14/15 #16 wall=    0.015s kernel=   0.0037s exit=0 ok
+mergesort n=50000   omp      w=2    rep=15/15 #1  wall=    0.012s kernel=   0.0023s exit=0 ok
+mergesort n=50000   omp      w=1    rep=15/15 #2  wall=    0.012s kernel=   0.0038s exit=0 ok
+mergesort n=50000   thread2  w=2    rep=15/15 #3  wall=    0.013s kernel=   0.0027s exit=0 ok
+mergesort n=50000   thread2  w=1    rep=15/15 #4  wall=    0.014s kernel=   0.0058s exit=0 ok
+mergesort n=50000   mpi      w=16 * rep=15/15 #5  wall=    0.538s kernel=   0.0041s exit=0 ok
+mergesort n=50000   mpi      w=4    rep=15/15 #6  wall=    0.380s kernel=   0.0017s exit=0 ok
+mergesort n=50000   mpi      w=8    rep=15/15 #7  wall=    0.413s kernel=   0.0032s exit=0 ok
+mergesort n=50000   omp      w=16 * rep=15/15 #8  wall=    0.013s kernel=   0.0026s exit=0 ok
+mergesort n=50000   thread2  w=16 * rep=15/15 #9  wall=    0.012s kernel=   0.0018s exit=0 ok
+mergesort n=50000   seq      w=1    rep=15/15 #10 wall=    0.015s kernel=   0.0042s exit=0 ok
+mergesort n=50000   thread2  w=4    rep=15/15 #11 wall=    0.011s kernel=   0.0018s exit=0 ok
+mergesort n=50000   omp      w=8    rep=15/15 #12 wall=    0.012s kernel=   0.0021s exit=0 ok
+mergesort n=50000   mpi      w=1    rep=15/15 #13 wall=    0.377s kernel=   0.0057s exit=0 ok
+mergesort n=50000   thread2  w=8    rep=15/15 #14 wall=    0.011s kernel=   0.0018s exit=0 ok
+mergesort n=50000   omp      w=4    rep=15/15 #15 wall=    0.012s kernel=   0.0025s exit=0 ok
+mergesort n=50000   mpi      w=2    rep=15/15 #16 wall=    0.373s kernel=   0.0032s exit=0 ok
+mergesort n=500000  omp      w=4    rep=1/15 #1  wall=    0.148s kernel=   0.0227s exit=0 ok
+mergesort n=500000  mpi      w=4    rep=1/15 #2  wall=    0.766s kernel=   0.0233s exit=0 ok
+mergesort n=500000  omp      w=16 * rep=1/15 #3  wall=    0.146s kernel=   0.0131s exit=0 ok
+mergesort n=500000  mpi      w=16 * rep=1/15 #4  wall=    1.001s kernel=   0.0556s exit=0 ok
+mergesort n=500000  thread2  w=2    rep=1/15 #5  wall=    0.158s kernel=   0.0299s exit=0 ok
+mergesort n=500000  mpi      w=1    rep=1/15 #6  wall=    0.741s kernel=   0.0593s exit=0 ok
+mergesort n=500000  thread2  w=4    rep=1/15 #7  wall=    0.151s kernel=   0.0178s exit=0 ok
+mergesort n=500000  omp      w=2    rep=1/15 #8  wall=    0.164s kernel=   0.0297s exit=0 ok
+mergesort n=500000  thread2  w=8    rep=1/15 #9  wall=    0.144s kernel=   0.0113s exit=0 ok
+mergesort n=500000  omp      w=8    rep=1/15 #10 wall=    0.142s kernel=   0.0128s exit=0 ok
+mergesort n=500000  omp      w=1    rep=1/15 #11 wall=    0.168s kernel=   0.0548s exit=0 ok
+mergesort n=500000  thread2  w=16 * rep=1/15 #12 wall=    0.141s kernel=   0.0088s exit=0 ok
+mergesort n=500000  seq      w=1    rep=1/15 #13 wall=    0.181s kernel=   0.0567s exit=0 ok
+mergesort n=500000  thread2  w=1    rep=1/15 #14 wall=    0.187s kernel=   0.0579s exit=0 ok
+mergesort n=500000  mpi      w=8    rep=1/15 #15 wall=    0.804s kernel=   0.0196s exit=0 ok
+mergesort n=500000  mpi      w=2    rep=1/15 #16 wall=    0.732s kernel=   0.0305s exit=0 ok
+mergesort n=500000  seq      w=1    rep=2/15 #1  wall=    0.147s kernel=   0.0512s exit=0 ok
+mergesort n=500000  mpi      w=8    rep=2/15 #2  wall=    0.762s kernel=   0.0169s exit=0 ok
+mergesort n=500000  thread2  w=16 * rep=2/15 #3  wall=    0.141s kernel=   0.0134s exit=0 ok
+mergesort n=500000  mpi      w=1    rep=2/15 #4  wall=    0.706s kernel=   0.0573s exit=0 ok
+mergesort n=500000  omp      w=4    rep=2/15 #5  wall=    0.143s kernel=   0.0212s exit=0 ok
+mergesort n=500000  omp      w=8    rep=2/15 #6  wall=    0.122s kernel=   0.0135s exit=0 ok
+mergesort n=500000  thread2  w=2    rep=2/15 #7  wall=    0.134s kernel=   0.0246s exit=0 ok
+mergesort n=500000  mpi      w=16 * rep=2/15 #8  wall=    0.955s kernel=   0.0381s exit=0 ok
+mergesort n=500000  omp      w=16 * rep=2/15 #9  wall=    0.129s kernel=   0.0142s exit=0 ok
+mergesort n=500000  mpi      w=4    rep=2/15 #10 wall=    0.717s kernel=   0.0187s exit=0 ok
+mergesort n=500000  mpi      w=2    rep=2/15 #11 wall=    0.684s kernel=   0.0289s exit=0 ok
+mergesort n=500000  omp      w=1    rep=2/15 #12 wall=    0.163s kernel=   0.0527s exit=0 ok
+mergesort n=500000  thread2  w=4    rep=2/15 #13 wall=    0.130s kernel=   0.0143s exit=0 ok
+mergesort n=500000  omp      w=2    rep=2/15 #14 wall=    0.147s kernel=   0.0274s exit=0 ok
+mergesort n=500000  thread2  w=8    rep=2/15 #15 wall=    0.119s kernel=   0.0099s exit=0 ok
+mergesort n=500000  thread2  w=1    rep=2/15 #16 wall=    0.162s kernel=   0.0485s exit=0 ok
+mergesort n=500000  mpi      w=8    rep=3/15 #1  wall=    0.755s kernel=   0.0167s exit=0 ok
+mergesort n=500000  omp      w=2    rep=3/15 #2  wall=    0.147s kernel=   0.0266s exit=0 ok
+mergesort n=500000  thread2  w=2    rep=3/15 #3  wall=    0.148s kernel=   0.0265s exit=0 ok
+mergesort n=500000  mpi      w=1    rep=3/15 #4  wall=    0.704s kernel=   0.0548s exit=0 ok
+mergesort n=500000  thread2  w=1    rep=3/15 #5  wall=    0.163s kernel=   0.0488s exit=0 ok
+mergesort n=500000  mpi      w=4    rep=3/15 #6  wall=    0.722s kernel=   0.0211s exit=0 ok
+mergesort n=500000  omp      w=16 * rep=3/15 #7  wall=    0.136s kernel=   0.0116s exit=0 ok
+mergesort n=500000  thread2  w=8    rep=3/15 #8  wall=    0.124s kernel=   0.0103s exit=0 ok
+mergesort n=500000  seq      w=1    rep=3/15 #9  wall=    0.151s kernel=   0.0504s exit=0 ok
+mergesort n=500000  omp      w=4    rep=3/15 #10 wall=    0.138s kernel=   0.0220s exit=0 ok
+mergesort n=500000  mpi      w=16 * rep=3/15 #11 wall=    0.926s kernel=   0.0325s exit=0 ok
+mergesort n=500000  thread2  w=4    rep=3/15 #12 wall=    0.130s kernel=   0.0167s exit=0 ok
+mergesort n=500000  thread2  w=16 * rep=3/15 #13 wall=    0.135s kernel=   0.0115s exit=0 ok
+mergesort n=500000  omp      w=1    rep=3/15 #14 wall=    0.162s kernel=   0.0553s exit=0 ok
+mergesort n=500000  omp      w=8    rep=3/15 #15 wall=    0.127s kernel=   0.0157s exit=0 ok
+mergesort n=500000  mpi      w=2    rep=3/15 #16 wall=    0.708s kernel=   0.0315s exit=0 ok
+mergesort n=500000  omp      w=8    rep=4/15 #1  wall=    0.127s kernel=   0.0126s exit=0 ok
+mergesort n=500000  thread2  w=1    rep=4/15 #2  wall=    0.150s kernel=   0.0476s exit=0 ok
+mergesort n=500000  thread2  w=2    rep=4/15 #3  wall=    0.129s kernel=   0.0256s exit=0 ok
+mergesort n=500000  mpi      w=1    rep=4/15 #4  wall=    0.698s kernel=   0.0551s exit=0 ok
+mergesort n=500000  seq      w=1    rep=4/15 #5  wall=    0.156s kernel=   0.0491s exit=0 ok
+mergesort n=500000  omp      w=16 * rep=4/15 #6  wall=    0.121s kernel=   0.0128s exit=0 ok
+mergesort n=500000  thread2  w=8    rep=4/15 #7  wall=    0.132s kernel=   0.0104s exit=0 ok
+mergesort n=500000  mpi      w=8    rep=4/15 #8  wall=    0.744s kernel=   0.0178s exit=0 ok
+mergesort n=500000  mpi      w=2    rep=4/15 #9  wall=    0.700s kernel=   0.0312s exit=0 ok
+mergesort n=500000  omp      w=2    rep=4/15 #10 wall=    0.134s kernel=   0.0264s exit=0 ok
+mergesort n=500000  mpi      w=16 * rep=4/15 #11 wall=    0.946s kernel=   0.0322s exit=0 ok
+mergesort n=500000  thread2  w=16 * rep=4/15 #12 wall=    0.136s kernel=   0.0110s exit=0 ok
+mergesort n=500000  omp      w=1    rep=4/15 #13 wall=    0.155s kernel=   0.0506s exit=0 ok
+mergesort n=500000  mpi      w=4    rep=4/15 #14 wall=    0.715s kernel=   0.0222s exit=0 ok
+mergesort n=500000  thread2  w=4    rep=4/15 #15 wall=    0.123s kernel=   0.0167s exit=0 ok
+mergesort n=500000  omp      w=4    rep=4/15 #16 wall=    0.122s kernel=   0.0170s exit=0 ok
+mergesort n=500000  omp      w=2    rep=5/15 #1  wall=    0.140s kernel=   0.0241s exit=0 ok
+mergesort n=500000  thread2  w=2    rep=5/15 #2  wall=    0.143s kernel=   0.0251s exit=0 ok
+mergesort n=500000  omp      w=8    rep=5/15 #3  wall=    0.134s kernel=   0.0128s exit=0 ok
+mergesort n=500000  mpi      w=1    rep=5/15 #4  wall=    0.711s kernel=   0.0553s exit=0 ok
+mergesort n=500000  omp      w=4    rep=5/15 #5  wall=    0.132s kernel=   0.0189s exit=0 ok
+mergesort n=500000  thread2  w=8    rep=5/15 #6  wall=    0.121s kernel=   0.0112s exit=0 ok
+mergesort n=500000  seq      w=1    rep=5/15 #7  wall=    0.150s kernel=   0.0516s exit=0 ok
+mergesort n=500000  mpi      w=16 * rep=5/15 #8  wall=    0.946s kernel=   0.0273s exit=0 ok
+mergesort n=500000  thread2  w=1    rep=5/15 #9  wall=    0.171s kernel=   0.0541s exit=0 ok
+mergesort n=500000  mpi      w=8    rep=5/15 #10 wall=    0.760s kernel=   0.0165s exit=0 ok
+mergesort n=500000  omp      w=1    rep=5/15 #11 wall=    0.160s kernel=   0.0485s exit=0 ok
+mergesort n=500000  omp      w=16 * rep=5/15 #12 wall=    0.144s kernel=   0.0201s exit=0 ok
+mergesort n=500000  thread2  w=4    rep=5/15 #13 wall=    0.121s kernel=   0.0126s exit=0 ok
+mergesort n=500000  thread2  w=16 * rep=5/15 #14 wall=    0.133s kernel=   0.0092s exit=0 ok
+mergesort n=500000  mpi      w=4    rep=5/15 #15 wall=    0.710s kernel=   0.0180s exit=0 ok
+mergesort n=500000  mpi      w=2    rep=5/15 #16 wall=    0.684s kernel=   0.0290s exit=0 ok
+mergesort n=500000  thread2  w=16 * rep=6/15 #1  wall=    0.124s kernel=   0.0084s exit=0 ok
+mergesort n=500000  thread2  w=2    rep=6/15 #2  wall=    0.136s kernel=   0.0262s exit=0 ok
+mergesort n=500000  mpi      w=2    rep=6/15 #3  wall=    0.705s kernel=   0.0320s exit=0 ok
+mergesort n=500000  thread2  w=8    rep=6/15 #4  wall=    0.116s kernel=   0.0106s exit=0 ok
+mergesort n=500000  thread2  w=4    rep=6/15 #5  wall=    0.121s kernel=   0.0133s exit=0 ok
+mergesort n=500000  seq      w=1    rep=6/15 #6  wall=    0.147s kernel=   0.0495s exit=0 ok
+mergesort n=500000  omp      w=2    rep=6/15 #7  wall=    0.145s kernel=   0.0292s exit=0 ok
+mergesort n=500000  thread2  w=1    rep=6/15 #8  wall=    0.163s kernel=   0.0524s exit=0 ok
+mergesort n=500000  omp      w=1    rep=6/15 #9  wall=    0.156s kernel=   0.0530s exit=0 ok
+mergesort n=500000  omp      w=16 * rep=6/15 #10 wall=    0.126s kernel=   0.0124s exit=0 ok
+mergesort n=500000  mpi      w=16 * rep=6/15 #11 wall=    0.929s kernel=   0.0276s exit=0 ok
+mergesort n=500000  mpi      w=1    rep=6/15 #12 wall=    0.718s kernel=   0.0535s exit=0 ok
+mergesort n=500000  omp      w=4    rep=6/15 #13 wall=    0.150s kernel=   0.0235s exit=0 ok
+mergesort n=500000  omp      w=8    rep=6/15 #14 wall=    0.130s kernel=   0.0136s exit=0 ok
+mergesort n=500000  mpi      w=8    rep=6/15 #15 wall=    0.768s kernel=   0.0196s exit=0 ok
+mergesort n=500000  mpi      w=4    rep=6/15 #16 wall=    0.728s kernel=   0.0184s exit=0 ok
+mergesort n=500000  thread2  w=8    rep=7/15 #1  wall=    0.132s kernel=   0.0112s exit=0 ok
+mergesort n=500000  mpi      w=16 * rep=7/15 #2  wall=    0.948s kernel=   0.0409s exit=0 ok
+mergesort n=500000  seq      w=1    rep=7/15 #3  wall=    0.167s kernel=   0.0543s exit=0 ok
+mergesort n=500000  thread2  w=4    rep=7/15 #4  wall=    0.133s kernel=   0.0152s exit=0 ok
+mergesort n=500000  mpi      w=8    rep=7/15 #5  wall=    0.740s kernel=   0.0150s exit=0 ok
+mergesort n=500000  omp      w=16 * rep=7/15 #6  wall=    0.140s kernel=   0.0118s exit=0 ok
+mergesort n=500000  thread2  w=1    rep=7/15 #7  wall=    0.158s kernel=   0.0493s exit=0 ok
+mergesort n=500000  thread2  w=16 * rep=7/15 #8  wall=    0.130s kernel=   0.0112s exit=0 ok
+mergesort n=500000  mpi      w=2    rep=7/15 #9  wall=    0.689s kernel=   0.0294s exit=0 ok
+mergesort n=500000  thread2  w=2    rep=7/15 #10 wall=    0.137s kernel=   0.0246s exit=0 ok
+mergesort n=500000  omp      w=8    rep=7/15 #11 wall=    0.125s kernel=   0.0103s exit=0 ok
+mergesort n=500000  mpi      w=1    rep=7/15 #12 wall=    0.716s kernel=   0.0546s exit=0 ok
+mergesort n=500000  omp      w=2    rep=7/15 #13 wall=    0.136s kernel=   0.0277s exit=0 ok
+mergesort n=500000  mpi      w=4    rep=7/15 #14 wall=    0.708s kernel=   0.0198s exit=0 ok
+mergesort n=500000  omp      w=1    rep=7/15 #15 wall=    0.159s kernel=   0.0527s exit=0 ok
+mergesort n=500000  omp      w=4    rep=7/15 #16 wall=    0.135s kernel=   0.0224s exit=0 ok
+mergesort n=500000  mpi      w=1    rep=8/15 #1  wall=    0.716s kernel=   0.0556s exit=0 ok
+mergesort n=500000  mpi      w=2    rep=8/15 #2  wall=    0.691s kernel=   0.0304s exit=0 ok
+mergesort n=500000  thread2  w=2    rep=8/15 #3  wall=    0.140s kernel=   0.0240s exit=0 ok
+mergesort n=500000  omp      w=8    rep=8/15 #4  wall=    0.129s kernel=   0.0139s exit=0 ok
+mergesort n=500000  omp      w=1    rep=8/15 #5  wall=    0.154s kernel=   0.0517s exit=0 ok
+mergesort n=500000  mpi      w=16 * rep=8/15 #6  wall=    0.917s kernel=   0.0286s exit=0 ok
+mergesort n=500000  omp      w=4    rep=8/15 #7  wall=    0.129s kernel=   0.0163s exit=0 ok
+mergesort n=500000  mpi      w=8    rep=8/15 #8  wall=    0.752s kernel=   0.0151s exit=0 ok
+mergesort n=500000  mpi      w=4    rep=8/15 #9  wall=    0.714s kernel=   0.0184s exit=0 ok
+mergesort n=500000  seq      w=1    rep=8/15 #10 wall=    0.173s kernel=   0.0535s exit=0 ok
+mergesort n=500000  thread2  w=16 * rep=8/15 #11 wall=    0.125s kernel=   0.0113s exit=0 ok
+mergesort n=500000  thread2  w=4    rep=8/15 #12 wall=    0.129s kernel=   0.0164s exit=0 ok
+mergesort n=500000  omp      w=16 * rep=8/15 #13 wall=    0.131s kernel=   0.0111s exit=0 ok
+mergesort n=500000  thread2  w=8    rep=8/15 #14 wall=    0.122s kernel=   0.0105s exit=0 ok
+mergesort n=500000  omp      w=2    rep=8/15 #15 wall=    0.140s kernel=   0.0251s exit=0 ok
+mergesort n=500000  thread2  w=1    rep=8/15 #16 wall=    0.161s kernel=   0.0498s exit=0 ok
+mergesort n=500000  thread2  w=8    rep=9/15 #1  wall=    0.128s kernel=   0.0112s exit=0 ok
+mergesort n=500000  omp      w=16 * rep=9/15 #2  wall=    0.136s kernel=   0.0116s exit=0 ok
+mergesort n=500000  mpi      w=2    rep=9/15 #3  wall=    0.719s kernel=   0.0314s exit=0 ok
+mergesort n=500000  omp      w=4    rep=9/15 #4  wall=    0.130s kernel=   0.0188s exit=0 ok
+mergesort n=500000  thread2  w=16 * rep=9/15 #5  wall=    0.115s kernel=   0.0092s exit=0 ok
+mergesort n=500000  thread2  w=1    rep=9/15 #6  wall=    0.154s kernel=   0.0490s exit=0 ok
+mergesort n=500000  thread2  w=2    rep=9/15 #7  wall=    0.132s kernel=   0.0275s exit=0 ok
+mergesort n=500000  seq      w=1    rep=9/15 #8  wall=    0.169s kernel=   0.0525s exit=0 ok
+mergesort n=500000  mpi      w=4    rep=9/15 #9  wall=    0.729s kernel=   0.0204s exit=0 ok
+mergesort n=500000  mpi      w=16 * rep=9/15 #10 wall=    0.944s kernel=   0.0335s exit=0 ok
+mergesort n=500000  omp      w=1    rep=9/15 #11 wall=    0.173s kernel=   0.0530s exit=0 ok
+mergesort n=500000  mpi      w=1    rep=9/15 #12 wall=    0.700s kernel=   0.0549s exit=0 ok
+mergesort n=500000  mpi      w=8    rep=9/15 #13 wall=    0.745s kernel=   0.0181s exit=0 ok
+mergesort n=500000  thread2  w=4    rep=9/15 #14 wall=    0.120s kernel=   0.0135s exit=0 ok
+mergesort n=500000  omp      w=2    rep=9/15 #15 wall=    0.145s kernel=   0.0272s exit=0 ok
+mergesort n=500000  omp      w=8    rep=9/15 #16 wall=    0.118s kernel=   0.0153s exit=0 ok
+mergesort n=500000  omp      w=4    rep=10/15 #1  wall=    0.138s kernel=   0.0210s exit=0 ok
+mergesort n=500000  mpi      w=1    rep=10/15 #2  wall=    0.741s kernel=   0.0606s exit=0 ok
+mergesort n=500000  thread2  w=2    rep=10/15 #3  wall=    0.143s kernel=   0.0286s exit=0 ok
+mergesort n=500000  omp      w=16 * rep=10/15 #4  wall=    0.129s kernel=   0.0123s exit=0 ok
+mergesort n=500000  mpi      w=8    rep=10/15 #5  wall=    0.772s kernel=   0.0190s exit=0 ok
+mergesort n=500000  seq      w=1    rep=10/15 #6  wall=    0.166s kernel=   0.0565s exit=0 ok
+mergesort n=500000  thread2  w=4    rep=10/15 #7  wall=    0.131s kernel=   0.0156s exit=0 ok
+mergesort n=500000  mpi      w=4    rep=10/15 #8  wall=    0.748s kernel=   0.0225s exit=0 ok
+mergesort n=500000  mpi      w=2    rep=10/15 #9  wall=    0.683s kernel=   0.0305s exit=0 ok
+mergesort n=500000  mpi      w=16 * rep=10/15 #10 wall=    0.963s kernel=   0.0274s exit=0 ok
+mergesort n=500000  thread2  w=16 * rep=10/15 #11 wall=    0.131s kernel=   0.0118s exit=0 ok
+mergesort n=500000  thread2  w=1    rep=10/15 #12 wall=    0.162s kernel=   0.0526s exit=0 ok
+mergesort n=500000  omp      w=2    rep=10/15 #13 wall=    0.150s kernel=   0.0280s exit=0 ok
+mergesort n=500000  omp      w=8    rep=10/15 #14 wall=    0.129s kernel=   0.0120s exit=0 ok
+mergesort n=500000  omp      w=1    rep=10/15 #15 wall=    0.156s kernel=   0.0532s exit=0 ok
+mergesort n=500000  thread2  w=8    rep=10/15 #16 wall=    0.129s kernel=   0.0108s exit=0 ok
+mergesort n=500000  mpi      w=4    rep=11/15 #1  wall=    0.696s kernel=   0.0199s exit=0 ok
+mergesort n=500000  mpi      w=2    rep=11/15 #2  wall=    0.675s kernel=   0.0298s exit=0 ok
+mergesort n=500000  omp      w=2    rep=11/15 #3  wall=    0.139s kernel=   0.0272s exit=0 ok
+mergesort n=500000  thread2  w=4    rep=11/15 #4  wall=    0.140s kernel=   0.0165s exit=0 ok
+mergesort n=500000  mpi      w=16 * rep=11/15 #5  wall=    0.953s kernel=   0.0310s exit=0 ok
+mergesort n=500000  thread2  w=2    rep=11/15 #6  wall=    0.139s kernel=   0.0255s exit=0 ok
+mergesort n=500000  thread2  w=8    rep=11/15 #7  wall=    0.122s kernel=   0.0116s exit=0 ok
+mergesort n=500000  mpi      w=1    rep=11/15 #8  wall=    0.694s kernel=   0.0529s exit=0 ok
+mergesort n=500000  omp      w=1    rep=11/15 #9  wall=    0.163s kernel=   0.0528s exit=0 ok
+mergesort n=500000  omp      w=8    rep=11/15 #10 wall=    0.135s kernel=   0.0146s exit=0 ok
+mergesort n=500000  thread2  w=16 * rep=11/15 #11 wall=    0.126s kernel=   0.0101s exit=0 ok
+mergesort n=500000  thread2  w=1    rep=11/15 #12 wall=    0.147s kernel=   0.0487s exit=0 ok
+mergesort n=500000  mpi      w=8    rep=11/15 #13 wall=    0.765s kernel=   0.0154s exit=0 ok
+mergesort n=500000  omp      w=16 * rep=11/15 #14 wall=    0.133s kernel=   0.0162s exit=0 ok
+mergesort n=500000  omp      w=4    rep=11/15 #15 wall=    0.133s kernel=   0.0168s exit=0 ok
+mergesort n=500000  seq      w=1    rep=11/15 #16 wall=    0.154s kernel=   0.0489s exit=0 ok
+mergesort n=500000  thread2  w=4    rep=12/15 #1  wall=    0.127s kernel=   0.0162s exit=0 ok
+mergesort n=500000  mpi      w=2    rep=12/15 #2  wall=    0.685s kernel=   0.0312s exit=0 ok
+mergesort n=500000  omp      w=1    rep=12/15 #3  wall=    0.151s kernel=   0.0515s exit=0 ok
+mergesort n=500000  seq      w=1    rep=12/15 #4  wall=    0.161s kernel=   0.0507s exit=0 ok
+mergesort n=500000  omp      w=4    rep=12/15 #5  wall=    0.136s kernel=   0.0212s exit=0 ok
+mergesort n=500000  mpi      w=1    rep=12/15 #6  wall=    0.703s kernel=   0.0557s exit=0 ok
+mergesort n=500000  omp      w=16 * rep=12/15 #7  wall=    0.122s kernel=   0.0120s exit=0 ok
+mergesort n=500000  mpi      w=4    rep=12/15 #8  wall=    0.724s kernel=   0.0206s exit=0 ok
+mergesort n=500000  thread2  w=1    rep=12/15 #9  wall=    0.167s kernel=   0.0481s exit=0 ok
+mergesort n=500000  omp      w=8    rep=12/15 #10 wall=    0.120s kernel=   0.0113s exit=0 ok
+mergesort n=500000  mpi      w=8    rep=12/15 #11 wall=    0.750s kernel=   0.0172s exit=0 ok
+mergesort n=500000  thread2  w=16 * rep=12/15 #12 wall=    0.132s kernel=   0.0118s exit=0 ok
+mergesort n=500000  thread2  w=8    rep=12/15 #13 wall=    0.125s kernel=   0.0101s exit=0 ok
+mergesort n=500000  thread2  w=2    rep=12/15 #14 wall=    0.133s kernel=   0.0251s exit=0 ok
+mergesort n=500000  omp      w=2    rep=12/15 #15 wall=    0.148s kernel=   0.0271s exit=0 ok
+mergesort n=500000  mpi      w=16 * rep=12/15 #16 wall=    0.944s kernel=   0.0258s exit=0 ok
+mergesort n=500000  mpi      w=16 * rep=13/15 #1  wall=    0.978s kernel=   0.0238s exit=0 ok
+mergesort n=500000  omp      w=16 * rep=13/15 #2  wall=    0.128s kernel=   0.0162s exit=0 ok
+mergesort n=500000  thread2  w=1    rep=13/15 #3  wall=    0.161s kernel=   0.0479s exit=0 ok
+mergesort n=500000  omp      w=4    rep=13/15 #4  wall=    0.131s kernel=   0.0215s exit=0 ok
+mergesort n=500000  thread2  w=16 * rep=13/15 #5  wall=    0.126s kernel=   0.0105s exit=0 ok
+mergesort n=500000  thread2  w=2    rep=13/15 #6  wall=    0.141s kernel=   0.0271s exit=0 ok
+mergesort n=500000  omp      w=1    rep=13/15 #7  wall=    0.165s kernel=   0.0526s exit=0 ok
+mergesort n=500000  mpi      w=8    rep=13/15 #8  wall=    0.763s kernel=   0.0183s exit=0 ok
+mergesort n=500000  mpi      w=4    rep=13/15 #9  wall=    0.707s kernel=   0.0175s exit=0 ok
+mergesort n=500000  thread2  w=8    rep=13/15 #10 wall=    0.122s kernel=   0.0100s exit=0 ok
+mergesort n=500000  omp      w=8    rep=13/15 #11 wall=    0.116s kernel=   0.0117s exit=0 ok
+mergesort n=500000  mpi      w=2    rep=13/15 #12 wall=    0.689s kernel=   0.0295s exit=0 ok
+mergesort n=500000  mpi      w=1    rep=13/15 #13 wall=    0.703s kernel=   0.0575s exit=0 ok
+mergesort n=500000  seq      w=1    rep=13/15 #14 wall=    0.151s kernel=   0.0477s exit=0 ok
+mergesort n=500000  omp      w=2    rep=13/15 #15 wall=    0.147s kernel=   0.0271s exit=0 ok
+mergesort n=500000  thread2  w=4    rep=13/15 #16 wall=    0.136s kernel=   0.0167s exit=0 ok
+mergesort n=500000  thread2  w=8    rep=14/15 #1  wall=    0.135s kernel=   0.0107s exit=0 ok
+mergesort n=500000  omp      w=16 * rep=14/15 #2  wall=    0.124s kernel=   0.0120s exit=0 ok
+mergesort n=500000  omp      w=8    rep=14/15 #3  wall=    0.125s kernel=   0.0122s exit=0 ok
+mergesort n=500000  omp      w=4    rep=14/15 #4  wall=    0.145s kernel=   0.0233s exit=0 ok
+mergesort n=500000  seq      w=1    rep=14/15 #5  wall=    0.161s kernel=   0.0542s exit=0 ok
+mergesort n=500000  mpi      w=4    rep=14/15 #6  wall=    0.690s kernel=   0.0195s exit=0 ok
+mergesort n=500000  mpi      w=16 * rep=14/15 #7  wall=    0.952s kernel=   0.0352s exit=0 ok
+mergesort n=500000  omp      w=2    rep=14/15 #8  wall=    0.144s kernel=   0.0277s exit=0 ok
+mergesort n=500000  thread2  w=16 * rep=14/15 #9  wall=    0.126s kernel=   0.0094s exit=0 ok
+mergesort n=500000  thread2  w=1    rep=14/15 #10 wall=    0.152s kernel=   0.0473s exit=0 ok
+mergesort n=500000  thread2  w=4    rep=14/15 #11 wall=    0.130s kernel=   0.0161s exit=0 ok
+mergesort n=500000  mpi      w=1    rep=14/15 #12 wall=    0.701s kernel=   0.0542s exit=0 ok
+mergesort n=500000  omp      w=1    rep=14/15 #13 wall=    0.165s kernel=   0.0506s exit=0 ok
+mergesort n=500000  mpi      w=2    rep=14/15 #14 wall=    0.673s kernel=   0.0292s exit=0 ok
+mergesort n=500000  thread2  w=2    rep=14/15 #15 wall=    0.144s kernel=   0.0272s exit=0 ok
+mergesort n=500000  mpi      w=8    rep=14/15 #16 wall=    0.768s kernel=   0.0182s exit=0 ok
+mergesort n=500000  mpi      w=8    rep=15/15 #1  wall=    0.721s kernel=   0.0155s exit=0 ok
+mergesort n=500000  omp      w=16 * rep=15/15 #2  wall=    0.134s kernel=   0.0112s exit=0 ok
+mergesort n=500000  thread2  w=2    rep=15/15 #3  wall=    0.130s kernel=   0.0253s exit=0 ok
+mergesort n=500000  mpi      w=4    rep=15/15 #4  wall=    0.701s kernel=   0.0190s exit=0 ok
+mergesort n=500000  mpi      w=2    rep=15/15 #5  wall=    0.724s kernel=   0.0301s exit=0 ok
+mergesort n=500000  seq      w=1    rep=15/15 #6  wall=    0.148s kernel=   0.0489s exit=0 ok
+mergesort n=500000  mpi      w=1    rep=15/15 #7  wall=    0.699s kernel=   0.0518s exit=0 ok
+mergesort n=500000  thread2  w=16 * rep=15/15 #8  wall=    0.124s kernel=   0.0083s exit=0 ok
+mergesort n=500000  thread2  w=1    rep=15/15 #9  wall=    0.150s kernel=   0.0501s exit=0 ok
+mergesort n=500000  mpi      w=16 * rep=15/15 #10 wall=    0.933s kernel=   0.0307s exit=0 ok
+mergesort n=500000  omp      w=8    rep=15/15 #11 wall=    0.136s kernel=   0.0150s exit=0 ok
+mergesort n=500000  thread2  w=4    rep=15/15 #12 wall=    0.118s kernel=   0.0140s exit=0 ok
+mergesort n=500000  omp      w=1    rep=15/15 #13 wall=    0.163s kernel=   0.0527s exit=0 ok
+mergesort n=500000  omp      w=2    rep=15/15 #14 wall=    0.143s kernel=   0.0253s exit=0 ok
+mergesort n=500000  omp      w=4    rep=15/15 #15 wall=    0.131s kernel=   0.0163s exit=0 ok
+mergesort n=500000  thread2  w=8    rep=15/15 #16 wall=    0.123s kernel=   0.0104s exit=0 ok
+mergesort n=5000000 thread2  w=2    rep=1/15 #1  wall=    1.442s kernel=   0.2879s exit=0 ok
+mergesort n=5000000 mpi      w=16 * rep=1/15 #2  wall=    4.923s kernel=   0.1725s exit=0 ok
+mergesort n=5000000 thread2  w=1    rep=1/15 #3  wall=    1.722s kernel=   0.5638s exit=0 ok
+mergesort n=5000000 thread2  w=8    rep=1/15 #4  wall=    1.331s kernel=   0.1004s exit=0 ok
+mergesort n=5000000 mpi      w=8    rep=1/15 #5  wall=    4.228s kernel=   0.1573s exit=0 ok
+mergesort n=5000000 omp      w=1    rep=1/15 #6  wall=    1.635s kernel=   0.5517s exit=0 ok
+mergesort n=5000000 mpi      w=4    rep=1/15 #7  wall=    4.088s kernel=   0.2057s exit=0 ok
+mergesort n=5000000 seq      w=1    rep=1/15 #8  wall=    1.652s kernel=   0.5516s exit=0 ok
+mergesort n=5000000 mpi      w=1    rep=1/15 #9  wall=    4.193s kernel=   0.6128s exit=0 ok
+mergesort n=5000000 omp      w=8    rep=1/15 #10 wall=    1.348s kernel=   0.1187s exit=0 ok
+mergesort n=5000000 omp      w=2    rep=1/15 #11 wall=    1.466s kernel=   0.2992s exit=0 ok
+mergesort n=5000000 omp      w=16 * rep=1/15 #12 wall=    1.338s kernel=   0.0974s exit=0 ok
+mergesort n=5000000 thread2  w=4    rep=1/15 #13 wall=    1.343s kernel=   0.1684s exit=0 ok
+mergesort n=5000000 omp      w=4    rep=1/15 #14 wall=    1.377s kernel=   0.1900s exit=0 ok
+mergesort n=5000000 mpi      w=2    rep=1/15 #15 wall=    4.022s kernel=   0.3381s exit=0 ok
+mergesort n=5000000 thread2  w=16 * rep=1/15 #16 wall=    1.291s kernel=   0.0917s exit=0 ok
+mergesort n=5000000 thread2  w=16 * rep=2/15 #1  wall=    1.264s kernel=   0.0871s exit=0 ok
+mergesort n=5000000 thread2  w=2    rep=2/15 #2  wall=    1.460s kernel=   0.2861s exit=0 ok
+mergesort n=5000000 thread2  w=8    rep=2/15 #3  wall=    1.322s kernel=   0.1093s exit=0 ok
+mergesort n=5000000 seq      w=1    rep=2/15 #4  wall=    1.700s kernel=   0.5544s exit=0 ok
+mergesort n=5000000 mpi      w=1    rep=2/15 #5  wall=    4.159s kernel=   0.5948s exit=0 ok
+mergesort n=5000000 omp      w=2    rep=2/15 #6  wall=    1.471s kernel=   0.2839s exit=0 ok
+mergesort n=5000000 mpi      w=8    rep=2/15 #7  wall=    4.247s kernel=   0.1581s exit=0 ok
+mergesort n=5000000 mpi      w=16 * rep=2/15 #8  wall=    4.704s kernel=   0.1518s exit=0 ok
+mergesort n=5000000 mpi      w=2    rep=2/15 #9  wall=    4.050s kernel=   0.3124s exit=0 ok
+mergesort n=5000000 thread2  w=1    rep=2/15 #10 wall=    1.710s kernel=   0.5500s exit=0 ok
+mergesort n=5000000 thread2  w=4    rep=2/15 #11 wall=    1.358s kernel=   0.1611s exit=0 ok
+mergesort n=5000000 mpi      w=4    rep=2/15 #12 wall=    4.068s kernel=   0.1996s exit=0 ok
+mergesort n=5000000 omp      w=8    rep=2/15 #13 wall=    1.277s kernel=   0.1235s exit=0 ok
+mergesort n=5000000 omp      w=1    rep=2/15 #14 wall=    1.685s kernel=   0.5622s exit=0 ok
+mergesort n=5000000 omp      w=16 * rep=2/15 #15 wall=    1.301s kernel=   0.1088s exit=0 ok
+mergesort n=5000000 omp      w=4    rep=2/15 #16 wall=    1.393s kernel=   0.2021s exit=0 ok
+mergesort n=5000000 mpi      w=8    rep=3/15 #1  wall=    4.258s kernel=   0.1429s exit=0 ok
+mergesort n=5000000 omp      w=16 * rep=3/15 #2  wall=    1.280s kernel=   0.1128s exit=0 ok
+mergesort n=5000000 omp      w=4    rep=3/15 #3  wall=    1.363s kernel=   0.1603s exit=0 ok
+mergesort n=5000000 omp      w=8    rep=3/15 #4  wall=    1.316s kernel=   0.1257s exit=0 ok
+mergesort n=5000000 mpi      w=2    rep=3/15 #5  wall=    4.003s kernel=   0.3371s exit=0 ok
+mergesort n=5000000 omp      w=1    rep=3/15 #6  wall=    1.628s kernel=   0.5488s exit=0 ok
+mergesort n=5000000 omp      w=2    rep=3/15 #7  wall=    1.501s kernel=   0.2909s exit=0 ok
+mergesort n=5000000 thread2  w=16 * rep=3/15 #8  wall=    1.260s kernel=   0.0840s exit=0 ok
+mergesort n=5000000 mpi      w=4    rep=3/15 #9  wall=    3.999s kernel=   0.2029s exit=0 ok
+mergesort n=5000000 mpi      w=1    rep=3/15 #10 wall=    4.228s kernel=   0.5790s exit=0 ok
+mergesort n=5000000 thread2  w=8    rep=3/15 #11 wall=    1.296s kernel=   0.1080s exit=0 ok
+mergesort n=5000000 thread2  w=2    rep=3/15 #12 wall=    1.500s kernel=   0.2841s exit=0 ok
+mergesort n=5000000 thread2  w=1    rep=3/15 #13 wall=    1.687s kernel=   0.5618s exit=0 ok
+mergesort n=5000000 seq      w=1    rep=3/15 #14 wall=    1.676s kernel=   0.5676s exit=0 ok
+mergesort n=5000000 thread2  w=4    rep=3/15 #15 wall=    1.315s kernel=   0.1603s exit=0 ok
+mergesort n=5000000 mpi      w=16 * rep=3/15 #16 wall=    4.632s kernel=   0.1694s exit=0 ok
+mergesort n=5000000 mpi      w=2    rep=4/15 #1  wall=    4.040s kernel=   0.3148s exit=0 ok
+mergesort n=5000000 omp      w=2    rep=4/15 #2  wall=    1.451s kernel=   0.2780s exit=0 ok
+mergesort n=5000000 omp      w=16 * rep=4/15 #3  wall=    1.246s kernel=   0.0919s exit=0 ok
+mergesort n=5000000 thread2  w=2    rep=4/15 #4  wall=    1.488s kernel=   0.2842s exit=0 ok
+mergesort n=5000000 mpi      w=4    rep=4/15 #5  wall=    4.000s kernel=   0.2012s exit=0 ok
+mergesort n=5000000 seq      w=1    rep=4/15 #6  wall=    1.661s kernel=   0.5453s exit=0 ok
+mergesort n=5000000 thread2  w=4    rep=4/15 #7  wall=    1.349s kernel=   0.1625s exit=0 ok
+mergesort n=5000000 omp      w=1    rep=4/15 #8  wall=    1.672s kernel=   0.5580s exit=0 ok
+mergesort n=5000000 mpi      w=8    rep=4/15 #9  wall=    4.160s kernel=   0.1545s exit=0 ok
+mergesort n=5000000 omp      w=4    rep=4/15 #10 wall=    1.385s kernel=   0.1954s exit=0 ok
+mergesort n=5000000 thread2  w=16 * rep=4/15 #11 wall=    1.271s kernel=   0.0941s exit=0 ok
+mergesort n=5000000 thread2  w=8    rep=4/15 #12 wall=    1.283s kernel=   0.1035s exit=0 ok
+mergesort n=5000000 mpi      w=16 * rep=4/15 #13 wall=    4.835s kernel=   0.1799s exit=0 ok
+mergesort n=5000000 omp      w=8    rep=4/15 #14 wall=    1.332s kernel=   0.1308s exit=0 ok
+mergesort n=5000000 mpi      w=1    rep=4/15 #15 wall=    4.234s kernel=   0.6044s exit=0 ok
+mergesort n=5000000 thread2  w=1    rep=4/15 #16 wall=    1.713s kernel=   0.5510s exit=0 ok
+mergesort n=5000000 thread2  w=8    rep=5/15 #1  wall=    1.343s kernel=   0.1028s exit=0 ok
+mergesort n=5000000 thread2  w=4    rep=5/15 #2  wall=    1.316s kernel=   0.1625s exit=0 ok
+mergesort n=5000000 mpi      w=8    rep=5/15 #3  wall=    4.200s kernel=   0.1637s exit=0 ok
+mergesort n=5000000 thread2  w=1    rep=5/15 #4  wall=    1.751s kernel=   0.5523s exit=0 ok
+mergesort n=5000000 omp      w=16 * rep=5/15 #5  wall=    1.335s kernel=   0.1057s exit=0 ok
+mergesort n=5000000 omp      w=4    rep=5/15 #6  wall=    1.409s kernel=   0.2062s exit=0 ok
+mergesort n=5000000 omp      w=8    rep=5/15 #7  wall=    1.348s kernel=   0.1368s exit=0 ok
+mergesort n=5000000 omp      w=1    rep=5/15 #8  wall=    1.630s kernel=   0.5613s exit=0 ok
+mergesort n=5000000 omp      w=2    rep=5/15 #9  wall=    1.512s kernel=   0.2906s exit=0 ok
+mergesort n=5000000 mpi      w=4    rep=5/15 #10 wall=    3.998s kernel=   0.2100s exit=0 ok
+mergesort n=5000000 thread2  w=2    rep=5/15 #11 wall=    1.539s kernel=   0.2862s exit=0 ok
+mergesort n=5000000 seq      w=1    rep=5/15 #12 wall=    1.681s kernel=   0.5591s exit=0 ok
+mergesort n=5000000 mpi      w=2    rep=5/15 #13 wall=    3.886s kernel=   0.3190s exit=0 ok
+mergesort n=5000000 mpi      w=1    rep=5/15 #14 wall=    4.177s kernel=   0.5927s exit=0 ok
+mergesort n=5000000 thread2  w=16 * rep=5/15 #15 wall=    1.310s kernel=   0.0802s exit=0 ok
+mergesort n=5000000 mpi      w=16 * rep=5/15 #16 wall=    4.609s kernel=   0.1574s exit=0 ok
+mergesort n=5000000 thread2  w=1    rep=6/15 #1  wall=    1.723s kernel=   0.5531s exit=0 ok
+mergesort n=5000000 omp      w=2    rep=6/15 #2  wall=    1.498s kernel=   0.2955s exit=0 ok
+mergesort n=5000000 mpi      w=8    rep=6/15 #3  wall=    4.201s kernel=   0.1566s exit=0 ok
+mergesort n=5000000 omp      w=1    rep=6/15 #4  wall=    1.651s kernel=   0.5420s exit=0 ok
+mergesort n=5000000 mpi      w=2    rep=6/15 #5  wall=    4.080s kernel=   0.3317s exit=0 ok
+mergesort n=5000000 thread2  w=16 * rep=6/15 #6  wall=    1.297s kernel=   0.0843s exit=0 ok
+mergesort n=5000000 thread2  w=8    rep=6/15 #7  wall=    1.286s kernel=   0.1047s exit=0 ok
+mergesort n=5000000 seq      w=1    rep=6/15 #8  wall=    1.650s kernel=   0.5527s exit=0 ok
+mergesort n=5000000 mpi      w=16 * rep=6/15 #9  wall=    4.941s kernel=   0.1834s exit=0 ok
+mergesort n=5000000 omp      w=8    rep=6/15 #10 wall=    1.281s kernel=   0.1409s exit=0 ok
+mergesort n=5000000 omp      w=16 * rep=6/15 #11 wall=    1.306s kernel=   0.1096s exit=0 ok
+mergesort n=5000000 thread2  w=2    rep=6/15 #12 wall=    1.484s kernel=   0.2846s exit=0 ok
+mergesort n=5000000 thread2  w=4    rep=6/15 #13 wall=    1.312s kernel=   0.1615s exit=0 ok
+mergesort n=5000000 mpi      w=4    rep=6/15 #14 wall=    4.018s kernel=   0.2051s exit=0 ok
+mergesort n=5000000 mpi      w=1    rep=6/15 #15 wall=    4.291s kernel=   0.5839s exit=0 ok
+mergesort n=5000000 omp      w=4    rep=6/15 #16 wall=    1.335s kernel=   0.1977s exit=0 ok
+mergesort n=5000000 mpi      w=1    rep=7/15 #1  wall=    4.167s kernel=   0.5737s exit=0 ok
+mergesort n=5000000 thread2  w=2    rep=7/15 #2  wall=    1.485s kernel=   0.2869s exit=0 ok
+mergesort n=5000000 omp      w=4    rep=7/15 #3  wall=    1.411s kernel=   0.2271s exit=0 ok
+mergesort n=5000000 omp      w=8    rep=7/15 #4  wall=    1.292s kernel=   0.1329s exit=0 ok
+mergesort n=5000000 thread2  w=4    rep=7/15 #5  wall=    1.363s kernel=   0.1699s exit=0 ok
+mergesort n=5000000 mpi      w=2    rep=7/15 #6  wall=    3.984s kernel=   0.3308s exit=0 ok
+mergesort n=5000000 thread2  w=8    rep=7/15 #7  wall=    1.350s kernel=   0.1080s exit=0 ok
+mergesort n=5000000 mpi      w=4    rep=7/15 #8  wall=    4.121s kernel=   0.2072s exit=0 ok
+mergesort n=5000000 omp      w=16 * rep=7/15 #9  wall=    1.297s kernel=   0.1027s exit=0 ok
+mergesort n=5000000 omp      w=1    rep=7/15 #10 wall=    1.703s kernel=   0.5563s exit=0 ok
+mergesort n=5000000 seq      w=1    rep=7/15 #11 wall=    1.705s kernel=   0.5565s exit=0 ok
+mergesort n=5000000 omp      w=2    rep=7/15 #12 wall=    1.464s kernel=   0.2842s exit=0 ok
+mergesort n=5000000 mpi      w=8    rep=7/15 #13 wall=    4.158s kernel=   0.1547s exit=0 ok
+mergesort n=5000000 thread2  w=1    rep=7/15 #14 wall=    1.775s kernel=   0.5434s exit=0 ok
+mergesort n=5000000 thread2  w=16 * rep=7/15 #15 wall=    1.301s kernel=   0.0847s exit=0 ok
+mergesort n=5000000 mpi      w=16 * rep=7/15 #16 wall=    4.695s kernel=   0.1752s exit=0 ok
+mergesort n=5000000 mpi      w=16 * rep=8/15 #1  wall=    5.060s kernel=   0.1449s exit=0 ok
+mergesort n=5000000 omp      w=16 * rep=8/15 #2  wall=    1.326s kernel=   0.1005s exit=0 ok
+mergesort n=5000000 seq      w=1    rep=8/15 #3  wall=    1.722s kernel=   0.5666s exit=0 ok
+mergesort n=5000000 mpi      w=8    rep=8/15 #4  wall=    4.287s kernel=   0.1633s exit=0 ok
+mergesort n=5000000 omp      w=8    rep=8/15 #5  wall=    1.334s kernel=   0.1304s exit=0 ok
+mergesort n=5000000 mpi      w=1    rep=8/15 #6  wall=    4.193s kernel=   0.6078s exit=0 ok
+mergesort n=5000000 thread2  w=4    rep=8/15 #7  wall=    1.375s kernel=   0.1636s exit=0 ok
+mergesort n=5000000 thread2  w=1    rep=8/15 #8  wall=    1.723s kernel=   0.5664s exit=0 ok
+mergesort n=5000000 omp      w=1    rep=8/15 #9  wall=    1.690s kernel=   0.5569s exit=0 ok
+mergesort n=5000000 thread2  w=16 * rep=8/15 #10 wall=    1.266s kernel=   0.0872s exit=0 ok
+mergesort n=5000000 thread2  w=2    rep=8/15 #11 wall=    1.462s kernel=   0.2789s exit=0 ok
+mergesort n=5000000 mpi      w=2    rep=8/15 #12 wall=    4.011s kernel=   0.3346s exit=0 ok
+mergesort n=5000000 thread2  w=8    rep=8/15 #13 wall=    1.254s kernel=   0.1114s exit=0 ok
+mergesort n=5000000 mpi      w=4    rep=8/15 #14 wall=    4.089s kernel=   0.2046s exit=0 ok
+mergesort n=5000000 omp      w=2    rep=8/15 #15 wall=    1.485s kernel=   0.2793s exit=0 ok
+mergesort n=5000000 omp      w=4    rep=8/15 #16 wall=    1.354s kernel=   0.1649s exit=0 ok
+mergesort n=5000000 mpi      w=16 * rep=9/15 #1  wall=    4.605s kernel=   0.1328s exit=0 ok
+mergesort n=5000000 thread2  w=16 * rep=9/15 #2  wall=    1.240s kernel=   0.0950s exit=0 ok
+mergesort n=5000000 mpi      w=8    rep=9/15 #3  wall=    4.134s kernel=   0.1576s exit=0 ok
+mergesort n=5000000 omp      w=4    rep=9/15 #4  wall=    1.391s kernel=   0.2011s exit=0 ok
+mergesort n=5000000 seq      w=1    rep=9/15 #5  wall=    1.689s kernel=   0.5702s exit=0 ok
+mergesort n=5000000 omp      w=2    rep=9/15 #6  wall=    1.517s kernel=   0.2903s exit=0 ok
+mergesort n=5000000 omp      w=16 * rep=9/15 #7  wall=    1.315s kernel=   0.1050s exit=0 ok
+mergesort n=5000000 thread2  w=8    rep=9/15 #8  wall=    1.319s kernel=   0.1126s exit=0 ok
+mergesort n=5000000 mpi      w=1    rep=9/15 #9  wall=    4.222s kernel=   0.6133s exit=0 ok
+mergesort n=5000000 mpi      w=2    rep=9/15 #10 wall=    4.035s kernel=   0.3188s exit=0 ok
+mergesort n=5000000 thread2  w=4    rep=9/15 #11 wall=    1.310s kernel=   0.1607s exit=0 ok
+mergesort n=5000000 omp      w=1    rep=9/15 #12 wall=    1.679s kernel=   0.5614s exit=0 ok
+mergesort n=5000000 thread2  w=2    rep=9/15 #13 wall=    1.438s kernel=   0.2835s exit=0 ok
+mergesort n=5000000 omp      w=8    rep=9/15 #14 wall=    1.295s kernel=   0.1236s exit=0 ok
+mergesort n=5000000 mpi      w=4    rep=9/15 #15 wall=    4.009s kernel=   0.2022s exit=0 ok
+mergesort n=5000000 thread2  w=1    rep=9/15 #16 wall=    1.713s kernel=   0.5489s exit=0 ok
+mergesort n=5000000 mpi      w=16 * rep=10/15 #1  wall=    4.584s kernel=   0.1379s exit=0 ok
+mergesort n=5000000 mpi      w=4    rep=10/15 #2  wall=    3.995s kernel=   0.1857s exit=0 ok
+mergesort n=5000000 thread2  w=4    rep=10/15 #3  wall=    1.375s kernel=   0.1589s exit=0 ok
+mergesort n=5000000 mpi      w=1    rep=10/15 #4  wall=    4.240s kernel=   0.6045s exit=0 ok
+mergesort n=5000000 mpi      w=2    rep=10/15 #5  wall=    3.963s kernel=   0.3379s exit=0 ok
+mergesort n=5000000 omp      w=4    rep=10/15 #6  wall=    1.366s kernel=   0.1591s exit=0 ok
+mergesort n=5000000 omp      w=8    rep=10/15 #7  wall=    1.341s kernel=   0.1343s exit=0 ok
+mergesort n=5000000 mpi      w=8    rep=10/15 #8  wall=    4.309s kernel=   0.2282s exit=0 ok
+mergesort n=5000000 omp      w=16 * rep=10/15 #9  wall=    1.293s kernel=   0.1086s exit=0 ok
+mergesort n=5000000 omp      w=1    rep=10/15 #10 wall=    1.681s kernel=   0.5464s exit=0 ok
+mergesort n=5000000 thread2  w=16 * rep=10/15 #11 wall=    1.266s kernel=   0.0847s exit=0 ok
+mergesort n=5000000 thread2  w=1    rep=10/15 #12 wall=    1.704s kernel=   0.5556s exit=0 ok
+mergesort n=5000000 seq      w=1    rep=10/15 #13 wall=    1.708s kernel=   0.5575s exit=0 ok
+mergesort n=5000000 omp      w=2    rep=10/15 #14 wall=    1.465s kernel=   0.2965s exit=0 ok
+mergesort n=5000000 thread2  w=8    rep=10/15 #15 wall=    1.285s kernel=   0.0963s exit=0 ok
+mergesort n=5000000 thread2  w=2    rep=10/15 #16 wall=    1.546s kernel=   0.3067s exit=0 ok
+mergesort n=5000000 thread2  w=1    rep=11/15 #1  wall=    1.722s kernel=   0.5570s exit=0 ok
+mergesort n=5000000 omp      w=4    rep=11/15 #2  wall=    1.396s kernel=   0.2007s exit=0 ok
+mergesort n=5000000 seq      w=1    rep=11/15 #3  wall=    1.614s kernel=   0.5510s exit=0 ok
+mergesort n=5000000 thread2  w=2    rep=11/15 #4  wall=    1.461s kernel=   0.2844s exit=0 ok
+mergesort n=5000000 mpi      w=2    rep=11/15 #5  wall=    4.053s kernel=   0.3262s exit=0 ok
+mergesort n=5000000 omp      w=1    rep=11/15 #6  wall=    1.696s kernel=   0.5519s exit=0 ok
+mergesort n=5000000 omp      w=2    rep=11/15 #7  wall=    1.469s kernel=   0.2951s exit=0 ok
+mergesort n=5000000 mpi      w=1    rep=11/15 #8  wall=    4.224s kernel=   0.6055s exit=0 ok
+mergesort n=5000000 thread2  w=16 * rep=11/15 #9  wall=    1.333s kernel=   0.0911s exit=0 ok
+mergesort n=5000000 omp      w=8    rep=11/15 #10 wall=    1.322s kernel=   0.1439s exit=0 ok
+mergesort n=5000000 mpi      w=8    rep=11/15 #11 wall=    4.197s kernel=   0.1559s exit=0 ok
+mergesort n=5000000 omp      w=16 * rep=11/15 #12 wall=    1.308s kernel=   0.0996s exit=0 ok
+mergesort n=5000000 thread2  w=8    rep=11/15 #13 wall=    1.301s kernel=   0.1051s exit=0 ok
+mergesort n=5000000 mpi      w=4    rep=11/15 #14 wall=    3.989s kernel=   0.2039s exit=0 ok
+mergesort n=5000000 thread2  w=4    rep=11/15 #15 wall=    1.348s kernel=   0.1550s exit=0 ok
+mergesort n=5000000 mpi      w=16 * rep=11/15 #16 wall=    4.812s kernel=   0.2269s exit=0 ok
+mergesort n=5000000 mpi      w=4    rep=12/15 #1  wall=    4.061s kernel=   0.1980s exit=0 ok
+mergesort n=5000000 mpi      w=16 * rep=12/15 #2  wall=    4.651s kernel=   0.1663s exit=0 ok
+mergesort n=5000000 mpi      w=8    rep=12/15 #3  wall=    4.179s kernel=   0.1469s exit=0 ok
+mergesort n=5000000 seq      w=1    rep=12/15 #4  wall=    1.696s kernel=   0.5481s exit=0 ok
+mergesort n=5000000 thread2  w=8    rep=12/15 #5  wall=    1.284s kernel=   0.1136s exit=0 ok
+mergesort n=5000000 omp      w=1    rep=12/15 #6  wall=    1.685s kernel=   0.5541s exit=0 ok
+mergesort n=5000000 omp      w=4    rep=12/15 #7  wall=    1.346s kernel=   0.1655s exit=0 ok
+mergesort n=5000000 thread2  w=16 * rep=12/15 #8  wall=    1.290s kernel=   0.0872s exit=0 ok
+mergesort n=5000000 thread2  w=1    rep=12/15 #9  wall=    1.742s kernel=   0.5544s exit=0 ok
+mergesort n=5000000 omp      w=8    rep=12/15 #10 wall=    1.367s kernel=   0.1389s exit=0 ok
+mergesort n=5000000 omp      w=2    rep=12/15 #11 wall=    1.446s kernel=   0.2912s exit=0 ok
+mergesort n=5000000 mpi      w=2    rep=12/15 #12 wall=    4.042s kernel=   0.3298s exit=0 ok
+mergesort n=5000000 thread2  w=4    rep=12/15 #13 wall=    1.307s kernel=   0.1607s exit=0 ok
+mergesort n=5000000 mpi      w=1    rep=12/15 #14 wall=    4.288s kernel=   0.6074s exit=0 ok
+mergesort n=5000000 omp      w=16 * rep=12/15 #15 wall=    1.303s kernel=   0.1045s exit=0 ok
+mergesort n=5000000 thread2  w=2    rep=12/15 #16 wall=    1.475s kernel=   0.2951s exit=0 ok
+mergesort n=5000000 thread2  w=4    rep=13/15 #1  wall=    1.299s kernel=   0.1573s exit=0 ok
+mergesort n=5000000 mpi      w=2    rep=13/15 #2  wall=    4.046s kernel=   0.3300s exit=0 ok
+mergesort n=5000000 omp      w=16 * rep=13/15 #3  wall=    1.279s kernel=   0.1022s exit=0 ok
+mergesort n=5000000 thread2  w=1    rep=13/15 #4  wall=    1.762s kernel=   0.5704s exit=0 ok
+mergesort n=5000000 thread2  w=2    rep=13/15 #5  wall=    1.458s kernel=   0.2759s exit=0 ok
+mergesort n=5000000 omp      w=1    rep=13/15 #6  wall=    1.700s kernel=   0.5610s exit=0 ok
+mergesort n=5000000 mpi      w=1    rep=13/15 #7  wall=    4.144s kernel=   0.5978s exit=0 ok
+mergesort n=5000000 mpi      w=8    rep=13/15 #8  wall=    4.096s kernel=   0.1459s exit=0 ok
+mergesort n=5000000 omp      w=4    rep=13/15 #9  wall=    1.445s kernel=   0.2105s exit=0 ok
+mergesort n=5000000 thread2  w=16 * rep=13/15 #10 wall=    1.301s kernel=   0.1016s exit=0 ok
+mergesort n=5000000 mpi      w=16 * rep=13/15 #11 wall=    4.967s kernel=   0.1891s exit=0 ok
+mergesort n=5000000 seq      w=1    rep=13/15 #12 wall=    1.685s kernel=   0.5482s exit=0 ok
+mergesort n=5000000 omp      w=2    rep=13/15 #13 wall=    1.506s kernel=   0.2949s exit=0 ok
+mergesort n=5000000 thread2  w=8    rep=13/15 #14 wall=    1.290s kernel=   0.1060s exit=0 ok
+mergesort n=5000000 mpi      w=4    rep=13/15 #15 wall=    4.045s kernel=   0.2027s exit=0 ok
+mergesort n=5000000 omp      w=8    rep=13/15 #16 wall=    1.343s kernel=   0.1374s exit=0 ok
+mergesort n=5000000 mpi      w=8    rep=14/15 #1  wall=    4.218s kernel=   0.1425s exit=0 ok
+mergesort n=5000000 thread2  w=16 * rep=14/15 #2  wall=    1.312s kernel=   0.0832s exit=0 ok
+mergesort n=5000000 mpi      w=2    rep=14/15 #3  wall=    4.160s kernel=   0.3489s exit=0 ok
+mergesort n=5000000 thread2  w=2    rep=14/15 #4  wall=    1.476s kernel=   0.2855s exit=0 ok
+mergesort n=5000000 mpi      w=1    rep=14/15 #5  wall=    4.244s kernel=   0.6092s exit=0 ok
+mergesort n=5000000 omp      w=16 * rep=14/15 #6  wall=    1.297s kernel=   0.1103s exit=0 ok
+mergesort n=5000000 mpi      w=4    rep=14/15 #7  wall=    4.065s kernel=   0.2060s exit=0 ok
+mergesort n=5000000 omp      w=8    rep=14/15 #8  wall=    1.340s kernel=   0.1419s exit=0 ok
+mergesort n=5000000 omp      w=2    rep=14/15 #9  wall=    1.447s kernel=   0.2950s exit=0 ok
+mergesort n=5000000 thread2  w=8    rep=14/15 #10 wall=    1.297s kernel=   0.1123s exit=0 ok
+mergesort n=5000000 thread2  w=4    rep=14/15 #11 wall=    1.372s kernel=   0.1669s exit=0 ok
+mergesort n=5000000 seq      w=1    rep=14/15 #12 wall=    1.670s kernel=   0.5493s exit=0 ok
+mergesort n=5000000 mpi      w=16 * rep=14/15 #13 wall=    4.646s kernel=   0.1563s exit=0 ok
+mergesort n=5000000 omp      w=1    rep=14/15 #14 wall=    1.690s kernel=   0.5504s exit=0 ok
+mergesort n=5000000 thread2  w=1    rep=14/15 #15 wall=    1.763s kernel=   0.5719s exit=0 ok
+mergesort n=5000000 omp      w=4    rep=14/15 #16 wall=    1.379s kernel=   0.2037s exit=0 ok
+mergesort n=5000000 omp      w=2    rep=15/15 #1  wall=    1.476s kernel=   0.2809s exit=0 ok
+mergesort n=5000000 thread2  w=16 * rep=15/15 #2  wall=    1.219s kernel=   0.0835s exit=0 ok
+mergesort n=5000000 mpi      w=2    rep=15/15 #3  wall=    4.023s kernel=   0.3259s exit=0 ok
+mergesort n=5000000 mpi      w=1    rep=15/15 #4  wall=    4.228s kernel=   0.5920s exit=0 ok
+mergesort n=5000000 thread2  w=8    rep=15/15 #5  wall=    1.291s kernel=   0.1161s exit=0 ok
+mergesort n=5000000 omp      w=8    rep=15/15 #6  wall=    1.305s kernel=   0.1276s exit=0 ok
+mergesort n=5000000 omp      w=4    rep=15/15 #7  wall=    1.425s kernel=   0.1940s exit=0 ok
+mergesort n=5000000 omp      w=16 * rep=15/15 #8  wall=    1.257s kernel=   0.1002s exit=0 ok
+mergesort n=5000000 thread2  w=1    rep=15/15 #9  wall=    1.779s kernel=   0.5738s exit=0 ok
+mergesort n=5000000 thread2  w=2    rep=15/15 #10 wall=    1.484s kernel=   0.2845s exit=0 ok
+mergesort n=5000000 mpi      w=16 * rep=15/15 #11 wall=    4.887s kernel=   0.1722s exit=0 ok
+mergesort n=5000000 omp      w=1    rep=15/15 #12 wall=    1.688s kernel=   0.5481s exit=0 ok
+mergesort n=5000000 mpi      w=8    rep=15/15 #13 wall=    4.166s kernel=   0.1613s exit=0 ok
+mergesort n=5000000 mpi      w=4    rep=15/15 #14 wall=    4.026s kernel=   0.2096s exit=0 ok
+mergesort n=5000000 thread2  w=4    rep=15/15 #15 wall=    1.372s kernel=   0.1569s exit=0 ok
+mergesort n=5000000 seq      w=1    rep=15/15 #16 wall=    1.733s kernel=   0.5670s exit=0 ok
+
+720 runs, 0 NOT ok -> benchmark/results/uni_s1b/raw_runs.csv   (* = oversubscribed: more workers than cores)
+wrote 48 configurations -> benchmark/results/uni_s1b/benchmark_results.csv
+  INVALID (no valid run): 0 | PARTIAL (some runs invalid): 0 | oversubscribed, excluded from scaling_valid: 9
+wrote benchmark/results/uni_s1b/mergesort_speedup_kernel.png
+wrote benchmark/results/uni_s1b/mergesort_speedup_wall.png
+wrote benchmark/results/uni_s1b/mergesort_kernel_time.png
+wrote benchmark/results/uni_s1b/mergesort_kernel_time_all_workers.png

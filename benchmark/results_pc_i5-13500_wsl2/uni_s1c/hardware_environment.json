@@ -1,0 +1,47 @@
+{
+  "schema_version": 3,
+  "collected_utc": "2026-11-24T05:29:05+00:00",
+  "os": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "python": "3.13.9",
+  "cpu_model": "13th Gen Intel(R) Core(TM) i5-13500",
+  "logical_cpus_usable": 20,
+  "physical_cores": 10,
+  "cgroup_cpu_limit": null,
+  "effective_cores": 10,
+  "cores_per_socket": "10",
+  "threads_per_core": "2",
+  "cpu_governor": null,
+  "memory_total_gib": 15.46,
+  "gcc": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "mpirun": "mpirun (Open MPI) 4.1.6",
+  "mpi_flavor": "openmpi",
+  "mpi_launch_flags": {
+    "root": [],
+    "oversubscribe": [
+      "--oversubscribe"
+    ]
+  },
+  "cflags_matrix": "-O2 -Wall -std=gnu99 -g -fopenmp -ffp-contract=off -I../common",
+  "cflags_mergesort": "-O2 -Wall -std=gnu99 -g -fopenmp -ffp-contract=off -I../common",
+  "data_seed": 20260101,
+  "protocol": {
+    "workers": [
+      1,
+      2,
+      4,
+      8,
+      16
+    ],
+    "reps": 5,
+    "sort_reps": 5,
+    "cooldown_s": 20.0,
+    "warmup": true,
+    "order": "randomised within each repetition (seeded, recorded as `order`)",
+    "reference_run": "one untimed sequential run per input defines the expected output hash"
+  },
+  "git": {
+    "commit": "443ac697f745586d30e7681096b931ec88c7b0d0",
+    "dirty": false
+  },
+  "notes": "Intel Core i5-13500 (6P+8E cores, 14 cores/20 threads, hybrid); Windows desktop running WSL2 Ubuntu 24.04; WSL reports 10 cores x 2 threads (not the real topology); 15 GiB visible to WSL; unattended run, plugged in, sleep disabled | session uni_s1c"
+}

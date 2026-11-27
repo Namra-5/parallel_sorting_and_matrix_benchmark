@@ -6,3 +6,5 @@
 Makefile text eol=lf
 *.pdf  binary
 *.png  binary
+# The second-machine data keep their original line endings so that SHA256SUMS stays valid
+benchmark/results_pc_i5-13500_wsl2/** -text

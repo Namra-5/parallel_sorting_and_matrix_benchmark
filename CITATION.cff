@@ -25,3 +25,12 @@ references:
     url: "https://github.com/mperlet/matrix_multiplication"
     license: MIT
     year: 2022
+  - type: dataset
+    title: "Parallel merge sort and matrix multiplication scaling measurements (Sequential, OpenMP, Pthreads, MPI)"
+    authors:
+      - family-names: Basharat
+        given-names: Namra
+    doi: "10.5281/zenodo.24554982"
+    url: "https://huggingface.co/datasets/Namra-5/hpc-parallel-matrix-sorting-benchmark"
+    year: 2026
+    license: CC-BY-4.0

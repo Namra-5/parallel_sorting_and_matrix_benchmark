@@ -1,0 +1,89 @@
+effective cores: 10 (physical 10, usable logical 20); workers: [1, 2, 4, 8, 16]; MPI: openmpi (oversubscribe flag: ['--oversubscribe'])
+matrix    n=2000    mpi      w=2    rep=1/5 #1  wall=   25.672s kernel=  15.7867s exit=0 ok
+matrix    n=2000    thread2  w=4    rep=1/5 #2  wall=   12.142s kernel=   7.5473s exit=0 ok
+matrix    n=2000    thread2  w=8    rep=1/5 #3  wall=    9.361s kernel=   4.7437s exit=0 ok
+matrix    n=2000    mpi      w=1    rep=1/5 #4  wall=   42.888s kernel=  33.1242s exit=0 ok
+matrix    n=2000    omp      w=8    rep=1/5 #5  wall=    9.266s kernel=   4.7469s exit=0 ok
+matrix    n=2000    omp      w=2    rep=1/5 #6  wall=   19.434s kernel=  14.9248s exit=0 ok
+matrix    n=2000    mpi      w=16 * rep=1/5 #7  wall=   17.686s kernel=   4.9533s exit=0 ok
+matrix    n=2000    thread2  w=16 * rep=1/5 #8  wall=    8.744s kernel=   4.0504s exit=0 ok
+matrix    n=2000    mpi      w=4    rep=1/5 #9  wall=   18.386s kernel=   8.1634s exit=0 ok
+matrix    n=2000    omp      w=16 * rep=1/5 #10 wall=    8.747s kernel=   4.0334s exit=0 ok
+matrix    n=2000    thread2  w=1    rep=1/5 #11 wall=   35.164s kernel=  30.6065s exit=0 ok
+matrix    n=2000    thread2  w=2    rep=1/5 #12 wall=   19.853s kernel=  15.2229s exit=0 ok
+matrix    n=2000    seq      w=1    rep=1/5 #13 wall=   36.008s kernel=  31.5058s exit=0 ok
+matrix    n=2000    mpi      w=8    rep=1/5 #14 wall=   16.361s kernel=   5.4293s exit=0 ok
+matrix    n=2000    omp      w=4    rep=1/5 #15 wall=   12.001s kernel=   7.3365s exit=0 ok
+matrix    n=2000    omp      w=1    rep=1/5 #16 wall=   34.643s kernel=  30.1810s exit=0 ok
+matrix    n=2000    thread2  w=1    rep=2/5 #1  wall=   33.605s kernel=  29.0092s exit=0 ok
+matrix    n=2000    omp      w=1    rep=2/5 #2  wall=   34.478s kernel=  29.8064s exit=0 ok
+matrix    n=2000    mpi      w=8    rep=2/5 #3  wall=   16.248s kernel=   5.2427s exit=0 ok
+matrix    n=2000    mpi      w=2    rep=2/5 #4  wall=   25.991s kernel=  16.0439s exit=0 ok
+matrix    n=2000    mpi      w=4    rep=2/5 #5  wall=   18.316s kernel=   8.0198s exit=0 ok
+matrix    n=2000    thread2  w=2    rep=2/5 #6  wall=   19.543s kernel=  14.8133s exit=0 ok
+matrix    n=2000    mpi      w=16 * rep=2/5 #7  wall=   17.951s kernel=   5.4747s exit=0 ok
+matrix    n=2000    thread2  w=8    rep=2/5 #8  wall=   10.051s kernel=   4.7415s exit=0 ok
+matrix    n=2000    omp      w=2    rep=2/5 #9  wall=   19.464s kernel=  14.8331s exit=0 ok
+matrix    n=2000    seq      w=1    rep=2/5 #10 wall=   33.417s kernel=  28.8171s exit=0 ok
+matrix    n=2000    omp      w=8    rep=2/5 #11 wall=    9.468s kernel=   4.8687s exit=0 ok
+matrix    n=2000    omp      w=4    rep=2/5 #12 wall=   11.754s kernel=   7.0793s exit=0 ok
+matrix    n=2000    thread2  w=4    rep=2/5 #13 wall=   12.119s kernel=   7.4316s exit=0 ok
+matrix    n=2000    omp      w=16 * rep=2/5 #14 wall=    8.755s kernel=   4.0504s exit=0 ok
+matrix    n=2000    mpi      w=1    rep=2/5 #15 wall=   40.455s kernel=  30.6390s exit=0 ok
+matrix    n=2000    thread2  w=16 * rep=2/5 #16 wall=    8.671s kernel=   3.8891s exit=0 ok
+matrix    n=2000    mpi      w=1    rep=3/5 #1  wall=   40.574s kernel=  30.8358s exit=0 ok
+matrix    n=2000    thread2  w=16 * rep=3/5 #2  wall=    8.742s kernel=   4.1150s exit=0 ok
+matrix    n=2000    omp      w=1    rep=3/5 #3  wall=   33.409s kernel=  28.8023s exit=0 ok
+matrix    n=2000    thread2  w=8    rep=3/5 #4  wall=    9.475s kernel=   4.7749s exit=0 ok
+matrix    n=2000    thread2  w=4    rep=3/5 #5  wall=   12.094s kernel=   7.4249s exit=0 ok
+matrix    n=2000    omp      w=16 * rep=3/5 #6  wall=    8.568s kernel=   3.8961s exit=0 ok
+matrix    n=2000    omp      w=8    rep=3/5 #7  wall=    9.490s kernel=   4.8281s exit=0 ok
+matrix    n=2000    thread2  w=2    rep=3/5 #8  wall=   19.280s kernel=  14.5524s exit=0 ok
+matrix    n=2000    mpi      w=16 * rep=3/5 #9  wall=   19.385s kernel=   5.6292s exit=0 ok
+matrix    n=2000    mpi      w=8    rep=3/5 #10 wall=   16.297s kernel=   5.3524s exit=0 ok
+matrix    n=2000    mpi      w=2    rep=3/5 #11 wall=   25.923s kernel=  16.0342s exit=0 ok
+matrix    n=2000    mpi      w=4    rep=3/5 #12 wall=   18.204s kernel=   7.9954s exit=0 ok
+matrix    n=2000    thread2  w=1    rep=3/5 #13 wall=   33.756s kernel=  29.0979s exit=0 ok
+matrix    n=2000    omp      w=4    rep=3/5 #14 wall=   11.882s kernel=   7.3073s exit=0 ok
+matrix    n=2000    seq      w=1    rep=3/5 #15 wall=   34.015s kernel=  29.3319s exit=0 ok
+matrix    n=2000    omp      w=2    rep=3/5 #16 wall=   20.158s kernel=  15.4495s exit=0 ok
+matrix    n=2000    thread2  w=8    rep=4/5 #1  wall=    9.364s kernel=   4.6809s exit=0 ok
+matrix    n=2000    thread2  w=1    rep=4/5 #2  wall=   33.287s kernel=  28.6755s exit=0 ok
+matrix    n=2000    seq      w=1    rep=4/5 #3  wall=   34.587s kernel=  29.9147s exit=0 ok
+matrix    n=2000    thread2  w=4    rep=4/5 #4  wall=   12.194s kernel=   7.5089s exit=0 ok
+matrix    n=2000    mpi      w=4    rep=4/5 #5  wall=   18.231s kernel=   8.1165s exit=0 ok
+matrix    n=2000    omp      w=1    rep=4/5 #6  wall=   33.528s kernel=  28.8872s exit=0 ok
+matrix    n=2000    omp      w=2    rep=4/5 #7  wall=   19.858s kernel=  15.1282s exit=0 ok
+matrix    n=2000    omp      w=16 * rep=4/5 #8  wall=    8.751s kernel=   4.0561s exit=0 ok
+matrix    n=2000    mpi      w=1    rep=4/5 #9  wall=   41.111s kernel=  31.0714s exit=0 ok
+matrix    n=2000    thread2  w=16 * rep=4/5 #10 wall=    9.233s kernel=   4.3998s exit=0 ok
+matrix    n=2000    omp      w=8    rep=4/5 #11 wall=    9.555s kernel=   4.8717s exit=0 ok
+matrix    n=2000    mpi      w=8    rep=4/5 #12 wall=   16.603s kernel=   5.4469s exit=0 ok
+matrix    n=2000    mpi      w=16 * rep=4/5 #13 wall=   17.736s kernel=   5.4216s exit=0 ok
+matrix    n=2000    mpi      w=2    rep=4/5 #14 wall=   25.814s kernel=  15.9500s exit=0 ok
+matrix    n=2000    thread2  w=2    rep=4/5 #15 wall=   19.433s kernel=  14.7499s exit=0 ok
+matrix    n=2000    omp      w=4    rep=4/5 #16 wall=   12.529s kernel=   7.7685s exit=0 ok
+matrix    n=2000    omp      w=16 * rep=5/5 #1  wall=    8.934s kernel=   4.2208s exit=0 ok
+matrix    n=2000    mpi      w=1    rep=5/5 #2  wall=   41.015s kernel=  31.1337s exit=0 ok
+matrix    n=2000    thread2  w=16 * rep=5/5 #3  wall=    8.798s kernel=   4.1335s exit=0 ok
+matrix    n=2000    omp      w=2    rep=5/5 #4  wall=   20.586s kernel=  15.9790s exit=0 ok
+matrix    n=2000    thread2  w=4    rep=5/5 #5  wall=   12.961s kernel=   8.3196s exit=0 ok
+matrix    n=2000    mpi      w=16 * rep=5/5 #6  wall=   18.225s kernel=   5.5525s exit=0 ok
+matrix    n=2000    thread2  w=2    rep=5/5 #7  wall=   19.010s kernel=  14.2881s exit=0 ok
+matrix    n=2000    thread2  w=8    rep=5/5 #8  wall=    9.474s kernel=   4.7932s exit=0 ok
+matrix    n=2000    mpi      w=4    rep=5/5 #9  wall=   18.341s kernel=   8.0750s exit=0 ok
+matrix    n=2000    seq      w=1    rep=5/5 #10 wall=   34.932s kernel=  30.3079s exit=0 ok
+matrix    n=2000    omp      w=4    rep=5/5 #11 wall=   12.195s kernel=   7.5326s exit=0 ok
+matrix    n=2000    omp      w=1    rep=5/5 #12 wall=   33.972s kernel=  29.2883s exit=0 ok
+matrix    n=2000    thread2  w=1    rep=5/5 #13 wall=   33.136s kernel=  28.4696s exit=0 ok
+matrix    n=2000    mpi      w=8    rep=5/5 #14 wall=   16.377s kernel=   5.2803s exit=0 ok
+matrix    n=2000    mpi      w=2    rep=5/5 #15 wall=   26.023s kernel=  16.0961s exit=0 ok
+matrix    n=2000    omp      w=8    rep=5/5 #16 wall=    9.324s kernel=   4.5625s exit=0 ok
+
+80 runs, 0 NOT ok -> benchmark/results/uni_s1c/raw_runs.csv   (* = oversubscribed: more workers than cores)
+wrote 16 configurations -> benchmark/results/uni_s1c/benchmark_results.csv
+  INVALID (no valid run): 0 | PARTIAL (some runs invalid): 0 | oversubscribed, excluded from scaling_valid: 3
+wrote benchmark/results/uni_s1c/matrix_speedup_kernel.png
+wrote benchmark/results/uni_s1c/matrix_speedup_wall.png
+wrote benchmark/results/uni_s1c/matrix_kernel_time.png
+wrote benchmark/results/uni_s1c/matrix_kernel_time_all_workers.png
